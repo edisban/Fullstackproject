@@ -1,22 +1,44 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import { AuthContext } from "../context/AuthContext";
 
 const LoginPage: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState(""); // 🔹 username αντί για login
   const [password, setPassword] = useState("");
-  const { login } = useContext(AuthContext);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const { login } = useContext(AuthContext); // ✅ αφήνουμε το login εδώ
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+    setError("");
 
-    // ✅ Fake login token για τώρα (θα το αλλάξουμε με backend call)
-    if (username && password) {
-      login("fake-jwt-token");
-      navigate("/dashboard");
-    } else {
-      alert("Συμπλήρωσε και τα δύο πεδία!");
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/api/auth/login",
+        { username, password }, // ✅ username στέλνεται στο backend
+        { headers: { "Content-Type": "application/json" } }
+      );
+
+      const token = response.data.token; // ✅ γιατί backend επιστρέφει "token"
+      if (token) {
+        login(token); // ✅ από το AuthContext (όχι να το αλλάξεις!)
+        localStorage.setItem("token", token);
+        navigate("/dashboard");
+      } else {
+        setError("Δεν ελήφθη token από τον server.");
+      }
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        setError("Λάθος όνομα χρήστη ή κωδικός!");
+      } else {
+        setError("Σφάλμα σύνδεσης με τον server.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -29,12 +51,9 @@ const LoginPage: React.FC = () => {
           <input
             type="text"
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              marginTop: "0.5rem",
-            }}
+            onChange={(e) => setUsername(e.target.value)} // ✅ username εδώ
+            style={{ width: "100%", padding: "0.5rem", marginTop: "0.5rem" }}
+            disabled={loading}
           />
         </div>
 
@@ -44,13 +63,12 @@ const LoginPage: React.FC = () => {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              marginTop: "0.5rem",
-            }}
+            style={{ width: "100%", padding: "0.5rem", marginTop: "0.5rem" }}
+            disabled={loading}
           />
         </div>
+
+        {error && <div style={{ color: "red", marginBottom: "1rem" }}>{error}</div>}
 
         <button
           type="submit"
@@ -62,9 +80,11 @@ const LoginPage: React.FC = () => {
             border: "none",
             borderRadius: "6px",
             cursor: "pointer",
+            opacity: loading ? 0.7 : 1,
           }}
+          disabled={loading}
         >
-          Login
+          {loading ? "Σύνδεση..." : "Login"}
         </button>
       </form>
     </div>

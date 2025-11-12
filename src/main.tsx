@@ -1,15 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import "./index.css";
 import App from "./App";
+import "./index.css";
 import { AuthProvider } from "./context/AuthContext";
 
-const rootElement = document.getElementById("root");
-if (!rootElement) throw new Error("Failed to find the root element");
-
-const root = ReactDOM.createRoot(rootElement as HTMLElement);
-
-root.render(
+ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <AuthProvider>
       <App />
