@@ -1,17 +1,20 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
+import TasksPage from "./pages/TasksPage";  // ✅ Προσθήκη
 import ProtectedRoute from "./routes/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 
 const App: React.FC = () => {
+  const RouterComponent = import.meta.env.DEV ? BrowserRouter : HashRouter;
+
   return (
     <AuthProvider>
-      <Router>
+      <RouterComponent>
         <CssBaseline />
         <Routes>
           <Route path="/" element={<Layout />}>
@@ -25,9 +28,18 @@ const App: React.FC = () => {
                 </ProtectedRoute>
               }
             />
+            {/* ✅ Νέο route για Tasks */}
+            <Route
+              path="tasks/:projectId"
+              element={
+                <ProtectedRoute>
+                  <TasksPage />
+                </ProtectedRoute>
+              }
+            />
           </Route>
         </Routes>
-      </Router>
+      </RouterComponent>
     </AuthProvider>
   );
 };

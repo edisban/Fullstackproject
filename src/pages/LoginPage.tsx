@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import axiosInstance from "../api/axiosInstance";
 import { AuthContext } from "../context/AuthContext";
 
 const LoginPage: React.FC = () => {
@@ -17,25 +17,26 @@ const LoginPage: React.FC = () => {
     setError("");
 
     try {
-      const response = await axios.post(
+      // Always hit backend directly to avoid any dev/proxy/static host issues
+      const response = await axiosInstance.post(
         "http://localhost:8080/api/auth/login",
-        { username, password }, // ✅ username στέλνεται στο backend
-        { headers: { "Content-Type": "application/json" } }
+        { username, password }
       );
 
       const token = response.data.token; // ✅ γιατί backend επιστρέφει "token"
       if (token) {
         login(token); // ✅ από το AuthContext (όχι να το αλλάξεις!)
         localStorage.setItem("token", token);
+        localStorage.setItem("username", username);
         navigate("/dashboard");
       } else {
         setError("Δεν ελήφθη token από τον server.");
       }
     } catch (err: any) {
       if (err.response?.status === 401) {
-        setError("Λάθος όνομα χρήστη ή κωδικός!");
+        setError("Invalid username or password.");
       } else {
-        setError("Σφάλμα σύνδεσης με τον server.");
+        setError("Connection error. Please try again.");
       }
     } finally {
       setLoading(false);

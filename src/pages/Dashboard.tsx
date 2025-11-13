@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import {
   Box,
   Button,
@@ -22,6 +24,7 @@ import {
 } from "../api/projects";
 
 const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -228,15 +231,13 @@ const Dashboard: React.FC = () => {
               ) : (
                 <>
                   <ListItemText
-                    primaryTypographyProps={{ component: "div" }}
-                    secondaryTypographyProps={{ component: "div" }}
                     primary={
                       <Typography variant="h6" color="primary" fontWeight="bold">
                         {project.name}
                       </Typography>
                     }
                     secondary={
-                      <>
+                      <Box component="div">
                         <Typography
                           variant="body2"
                           color="text.secondary"
@@ -248,9 +249,8 @@ const Dashboard: React.FC = () => {
                           <Typography
                             variant="caption"
                             color="text.secondary"
-                            display="block"
                             component="div"
-                            mt={0.5}
+                            sx={{ mt: 0.5 }}
                           >
                             📅 Ημερομηνία έναρξης:{" "}
                             {new Date(project.startDate).toLocaleDateString("el-GR")}
@@ -260,23 +260,20 @@ const Dashboard: React.FC = () => {
                           <Typography
                             variant="caption"
                             color="text.secondary"
-                            display="block"
                             component="div"
                           >
                             🕒 Δημιουργήθηκε:{" "}
                             {new Date(project.createdAt).toLocaleString("el-GR")}
                           </Typography>
                         )}
-                      </>
+                      </Box>
                     }
                   />
                   <Stack direction="row" spacing={1}>
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={() => {
-                        alert(`View tasks for project ${project.id}`);
-                      }}
+                      onClick={() => navigate(`/tasks/${project.id}`)}
                     >
                       📋 Tasks
                     </Button>

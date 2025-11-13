@@ -25,11 +25,23 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const reqUrl: string = error.config?.url || '';
+    const isAuthEndpoint = reqUrl.includes('/auth/login') || reqUrl.includes('/auth/register');
+
+    // For login/register failures, don't redirect; let the page show a message
+    if (status === 401 && isAuthEndpoint) {
+      return Promise.reject(error);
+    }
+
+    if (status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
-      window.location.href = '/login';
+      const loginPath = import.meta.env.DEV ? '/login' : '/#/login';
+      window.location.href = loginPath;
+      return; // stop further handling
     }
+
     return Promise.reject(error);
   }
 );

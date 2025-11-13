@@ -1,13 +1,25 @@
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+/* Make native inputs blend with the dark/blue background */
+input, textarea, select {
+  background-color: #0f172a; /* dark navy with a blue hint */
+  color: #f1f5f9;            /* light text */
+  border: 1px solid #475569; /* slate border */
+  border-radius: 8px;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* Force the "Add Employee" card to a solid blue background */
+.add-form-paper {
+  background: #0f1e4d !important;
 }
