@@ -1,12 +1,23 @@
 package com.edis.backendproject.controller;
 
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.edis.backendproject.model.Project;
 import com.edis.backendproject.repository.ProjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -22,10 +33,9 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Project> getProjectById(@PathVariable Long id) {
-        return projectRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<Project> getProjectById(@PathVariable @NonNull Long id) {
+        // Use ResponseEntity.of to avoid generic type ambiguity warnings
+        return ResponseEntity.of(projectRepository.findById(id));
     }
 
     @PostMapping
@@ -42,7 +52,7 @@ public class ProjectController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateProject(@PathVariable Long id, @RequestBody Project projectDetails) {
+    public ResponseEntity<Project> updateProject(@PathVariable @NonNull Long id, @RequestBody Project projectDetails) {
         try {
             return projectRepository.findById(id)
                     .map(project -> {
@@ -51,23 +61,22 @@ public class ProjectController {
                         project.setStartDate(projectDetails.getStartDate());
                         return ResponseEntity.ok(projectRepository.save(project));
                     })
-                    .orElse(ResponseEntity.notFound().build());
+                    .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error updating project: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteProject(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteProject(@PathVariable @NonNull Long id) {
         try {
-            return projectRepository.findById(id)
-                    .map(project -> {
-                        projectRepository.delete(project);
-                        return ResponseEntity.ok().build();
-                    })
-                    .orElse(ResponseEntity.notFound().build());
+            if (!projectRepository.existsById(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+            projectRepository.deleteById(id);
+            return ResponseEntity.noContent().build();
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error deleting project: " + e.getMessage());
+            return ResponseEntity.badRequest().build();
         }
     }
 }

@@ -60,6 +60,7 @@ public class SecurityConfig {
     }
 
     @Bean
+    @SuppressWarnings("deprecation")
     public PasswordEncoder passwordEncoder() {
         // Using NoOp since passwords are already SHA-256 hashed in DB
         return NoOpPasswordEncoder.getInstance();
