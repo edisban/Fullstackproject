@@ -20,13 +20,16 @@ public class TaskController {
     @Autowired
     private ProjectRepository projectRepository;
 
-    // 🔹 Επιστρέφει όλα τα tasks
     @GetMapping
     public List<Task> getAllTasks() {
         return taskRepository.findAll();
     }
 
-    // 🔹 Επιστρέφει task ανά ID
+    @GetMapping("/project/{projectId}")
+    public List<Task> getTasksByProject(@PathVariable Long projectId) {
+        return taskRepository.findByProjectId(projectId);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Task> getTaskById(@PathVariable Long id) {
         return taskRepository.findById(id)
@@ -34,73 +37,64 @@ public class TaskController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔹 Επιστρέφει tasks για συγκεκριμένο project
-    @GetMapping("/project/{projectId}")
-    public List<Task> getTasksByProject(@PathVariable Long projectId) {
-        return taskRepository.findByProjectId(projectId);
+    @GetMapping("/search/code")
+    public ResponseEntity<Task> searchByCode(@RequestParam String code) {
+        return taskRepository.findByCodeNumber(code)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔹 Αναζήτηση task με τίτλο
-    @GetMapping("/search")
-    public List<Task> searchTasks(@RequestParam String title) {
-        return taskRepository.findByTitleContainingIgnoreCase(title);
+    @GetMapping("/search/name")
+    public List<Task> searchByName(@RequestParam String name) {
+        return taskRepository.findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(name, name);
     }
 
-    // 🔹 Δημιουργία νέου task
     @PostMapping
-    public ResponseEntity<Object> createTask(@RequestBody TaskRequest taskRequest) {
-        try {
-            return projectRepository.findById(taskRequest.getProjectId())
-                    .<ResponseEntity<Object>>map(project -> {
-                        Task task = new Task();
-                        task.setTitle(taskRequest.getTitle());
-                        task.setDescription(taskRequest.getDescription());
-                        task.setStatus(taskRequest.getStatus());
-                        task.setPriority(taskRequest.getPriority());
-                        task.setDueDate(taskRequest.getDueDate());
-                        task.setProject(project);
-
-                        Task savedTask = taskRepository.save(task);
-                        return ResponseEntity.ok(savedTask);
-                    })
-                    .orElseGet(() -> ResponseEntity.badRequest().body("❌ Project not found"));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("❌ Error creating task: " + e.getMessage());
+    public ResponseEntity<Task> createTask(@RequestBody TaskRequest request) {
+        if (!projectRepository.existsById(request.getProjectId())) {
+            return ResponseEntity.badRequest().build();
         }
+
+        Task task = new Task();
+        task.setCodeNumber(request.getCodeNumber());
+        task.setFirstName(request.getFirstName());
+        task.setLastName(request.getLastName());
+        task.setDateOfBirth(request.getDateOfBirth());
+        task.setTitle(request.getTitle());
+        task.setDescription(request.getDescription());
+        task.setStatus(request.getStatus());
+        task.setPriority(request.getPriority());
+        task.setDueDate(request.getDueDate());
+
+        projectRepository.findById(request.getProjectId()).ifPresent(task::setProject);
+
+        return ResponseEntity.ok(taskRepository.save(task));
     }
 
-    // 🔹 Ενημέρωση task
     @PutMapping("/{id}")
-    public ResponseEntity<Object> updateTask(@PathVariable Long id, @RequestBody TaskRequest taskRequest) {
-        try {
-            return taskRepository.findById(id)
-                    .<ResponseEntity<Object>>map(task -> {
-                        task.setTitle(taskRequest.getTitle());
-                        task.setDescription(taskRequest.getDescription());
-                        task.setStatus(taskRequest.getStatus());
-                        task.setPriority(taskRequest.getPriority());
-                        task.setDueDate(taskRequest.getDueDate());
-                        Task updated = taskRepository.save(task);
-                        return ResponseEntity.ok(updated);
-                    })
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("❌ Error updating task: " + e.getMessage());
-        }
+    public ResponseEntity<Task> updateTask(@PathVariable Long id, @RequestBody TaskRequest request) {
+        return taskRepository.findById(id)
+                .map(task -> {
+                    task.setCodeNumber(request.getCodeNumber());
+                    task.setFirstName(request.getFirstName());
+                    task.setLastName(request.getLastName());
+                    task.setDateOfBirth(request.getDateOfBirth());
+                    task.setTitle(request.getTitle());
+                    task.setDescription(request.getDescription());
+                    task.setStatus(request.getStatus());
+                    task.setPriority(request.getPriority());
+                    task.setDueDate(request.getDueDate());
+                    return ResponseEntity.ok(taskRepository.save(task));
+                })
+                .orElse(ResponseEntity.notFound().build());
     }
 
-    // 🔹 Διαγραφή task
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteTask(@PathVariable Long id) {
-        try {
-            return taskRepository.findById(id)
-                    .<ResponseEntity<Object>>map(task -> {
-                        taskRepository.delete(task);
-                        return ResponseEntity.ok("✅ Task deleted successfully");
-                    })
-                    .orElseGet(() -> ResponseEntity.notFound().build());
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("❌ Error deleting task: " + e.getMessage());
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        if (!taskRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
         }
+        taskRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }
