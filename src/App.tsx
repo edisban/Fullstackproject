@@ -1,46 +1,60 @@
 import React from "react";
-import { BrowserRouter, HashRouter, Routes, Route } from "react-router-dom";
+import {
+  Route,
+  RouterProvider,
+  createBrowserRouter,
+  createRoutesFromElements,
+} from "react-router-dom";
 import { CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
-import TasksPage from "./pages/TasksPage";  // ✅ Προσθήκη
+import TasksPage from "./pages/TasksPage"; // ✅ Προσθήκη
 import ProtectedRoute from "./routes/ProtectedRoute";
-import { AuthProvider } from "./context/AuthContext";
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Layout />}>
+      <Route index element={<HomePage />} />
+      <Route path="login" element={<LoginPage />} />
+      <Route
+        path="dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      {/* ✅ Νέο route για Tasks */}
+      <Route
+        path="tasks/:projectId"
+        element={
+          <ProtectedRoute>
+            <TasksPage />
+          </ProtectedRoute>
+        }
+      />
+    </Route>
+  ),
+  {
+    future: {
+      v7_relativeSplatPath: true,
+    },
+  }
+);
 
 const App: React.FC = () => {
-  const RouterComponent = import.meta.env.DEV ? BrowserRouter : HashRouter;
-
   return (
-    <AuthProvider>
-      <RouterComponent>
-        <CssBaseline />
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<HomePage />} />
-            <Route path="login" element={<LoginPage />} />
-            <Route
-              path="dashboard"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            {/* ✅ Νέο route για Tasks */}
-            <Route
-              path="tasks/:projectId"
-              element={
-                <ProtectedRoute>
-                  <TasksPage />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-        </Routes>
-      </RouterComponent>
-    </AuthProvider>
+    <>
+      <CssBaseline />
+      <RouterProvider
+        router={router}
+        future={{
+          v7_startTransition: true,
+        }}
+      />
+    </>
   );
 };
 

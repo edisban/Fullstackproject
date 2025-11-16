@@ -73,13 +73,11 @@ const LoginPage: React.FC = () => {
 
         <button
           type="submit"
+          className="btn-primary"
           style={{
             width: "100%",
             padding: "0.75rem",
-            backgroundColor: "#1976d2",
-            color: "white",
-            border: "none",
-            borderRadius: "6px",
+            borderRadius: "10px",
             cursor: "pointer",
             opacity: loading ? 0.7 : 1,
           }}

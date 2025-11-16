@@ -2,7 +2,7 @@ import api from "./axiosInstance";
 
 export interface Task {
   id?: number;
-  codeNumber: string;      // ΑΦΜ
+  codeNumber: string;      // AM (alias of codeNumber on backend)
   firstName: string;
   lastName: string;
   dateOfBirth?: string;
@@ -44,9 +44,12 @@ export const deleteTask = async (id: number): Promise<void> => {
   await api.delete(`/tasks/${id}`);
 };
 
-// 🔍 Bonus: Search by code (ΑΦΜ)
+// 🔍 Search by AM (backend also accepts legacy 'code')
 export const searchTaskByCode = async (code: string): Promise<Task> => {
-  const response = await api.get(`/tasks/search/code?code=${code}`);
+  // Prefer AM param, backend also supports legacy 'code'
+  const response = await api.get(`/tasks/search/code`, {
+    params: { am: code, code },
+  });
   return response.data;
 };
 

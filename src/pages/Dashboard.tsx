@@ -123,12 +123,12 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box p={4}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>
+      <Typography variant="h4" color="primary" fontWeight="bold" gutterBottom>
         📋 Projects Dashboard
       </Typography>
 
-      {/* ADD FORM */}
-      <Paper sx={{ p: 3, mb: 3, backgroundColor: "#f5f5f5" }}>
+    {/* ADD FORM */}
+    <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
           ➕ Δημιουργία Project
         </Typography>
@@ -231,6 +231,7 @@ const Dashboard: React.FC = () => {
               ) : (
                 <>
                   <ListItemText
+                    disableTypography
                     primary={
                       <Typography variant="h6" color="primary" fontWeight="bold">
                         {project.name}

@@ -58,7 +58,7 @@ const TasksPage: React.FC = () => {
       setTasks(data);
     } catch (error: any) {
       console.error("❌ Failed to fetch tasks:", error);
-      showSnackbar("Αποτυχία φόρτωσης υπαλλήλων", "error");
+  showSnackbar("Αποτυχία φόρτωσης φοιτητών", "error");
     } finally {
       setLoading(false);
     }
@@ -93,10 +93,10 @@ const TasksPage: React.FC = () => {
         dueDate: "",
         projectId: Number(projectId),
       });
-      showSnackbar("Υπάλληλος προστέθηκε επιτυχώς!", "success");
+  showSnackbar("Φοιτητής προστέθηκε επιτυχώς!", "success");
     } catch (error: any) {
       console.error("❌ Failed to create task:", error);
-      showSnackbar(error.response?.data || "Αποτυχία δημιουργίας υπαλλήλου", "error");
+  showSnackbar(error.response?.data || "Αποτυχία δημιουργίας φοιτητή", "error");
     }
   };
 
@@ -117,22 +117,22 @@ const TasksPage: React.FC = () => {
         dueDate: "",
         projectId: Number(projectId),
       });
-      showSnackbar("Υπάλληλος ενημερώθηκε επιτυχώς!", "success");
+  showSnackbar("Φοιτητής ενημερώθηκε επιτυχώς!", "success");
     } catch (error: any) {
       console.error("❌ Failed to update task:", error);
-      showSnackbar("Αποτυχία ενημέρωσης υπαλλήλου", "error");
+  showSnackbar("Αποτυχία ενημέρωσης φοιτητή", "error");
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Είσαι σίγουρος ότι θες να διαγράψεις τον υπάλληλο;")) {
+  if (window.confirm("Είσαι σίγουρος ότι θες να διαγράψεις τον φοιτητή;")) {
       try {
         await deleteTask(id);
         setTasks(tasks.filter((t) => t.id !== id));
-        showSnackbar("Υπάλληλος διαγράφηκε επιτυχώς!", "success");
+  showSnackbar("Φοιτητής διαγράφηκε επιτυχώς!", "success");
       } catch (error: any) {
         console.error("❌ Failed to delete task:", error);
-        showSnackbar("Αποτυχία διαγραφής υπαλλήλου", "error");
+  showSnackbar("Αποτυχία διαγραφής φοιτητή", "error");
       }
     }
   };
@@ -144,7 +144,7 @@ const TasksPage: React.FC = () => {
     }
 
     try {
-      // Προσπάθησε αναζήτηση με ΑΦΜ πρώτα
+  // Προσπάθησε αναζήτηση με AM πρώτα
       const byCode = await searchTaskByCode(searchQuery);
       setTasks([byCode]);
     } catch {
@@ -172,17 +172,17 @@ const TasksPage: React.FC = () => {
         <IconButton onClick={() => navigate("/dashboard")}>
           <ArrowBack />
         </IconButton>
-        <Typography variant="h4" fontWeight="bold" ml={2}>
-          👥 Υπάλληλοι Project #{projectId}
+        <Typography variant="h4" color="primary" fontWeight="bold" ml={2}>
+          👥 Φοιτητές Project #{projectId}
         </Typography>
       </Box>
 
-      {/* Search Bar */}
-      <Paper sx={{ p: 2, mb: 3 }}>
+    {/* Search Bar */}
+    <Paper sx={{ p: 2, mb: 3 }}>
         <Stack direction="row" spacing={2}>
           <TextField
             fullWidth
-            label="🔍 Αναζήτηση (ΑΦΜ ή Όνομα)"
+            label="🔍 Αναζήτηση (AM ή Όνομα)"
             placeholder="π.χ. 123456789 ή Γιάννης"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -197,29 +197,32 @@ const TasksPage: React.FC = () => {
         </Stack>
       </Paper>
 
-      {/* Add Form */}
-      <Paper sx={{ p: 3, mb: 3, backgroundColor: "#f5f5f5" }}>
+    {/* Add Form */}
+    <Paper sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          ➕ Προσθήκη Υπαλλήλου
+          ➕ Προσθήκη Φοιτητή
         </Typography>
         <Stack spacing={2}>
           <Stack direction="row" spacing={2}>
             <TextField
-              label="ΑΦΜ *"
+              label="AM *"
               value={formData.codeNumber}
               onChange={(e) => setFormData({ ...formData, codeNumber: e.target.value })}
+              InputLabelProps={{ shrink: true }}
               required
             />
             <TextField
               label="Όνομα *"
               value={formData.firstName}
               onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+              InputLabelProps={{ shrink: true }}
               required
             />
             <TextField
               label="Επώνυμο *"
               value={formData.lastName}
               onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              InputLabelProps={{ shrink: true }}
               required
             />
           </Stack>
@@ -235,12 +238,14 @@ const TasksPage: React.FC = () => {
               label="Θέση Εργασίας"
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              InputLabelProps={{ shrink: true }}
             />
             <TextField
               select
               label="Κατάσταση"
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              InputLabelProps={{ shrink: true }}
               SelectProps={{ native: true }}
             >
               <option value="ACTIVE">Ενεργός</option>
@@ -253,9 +258,10 @@ const TasksPage: React.FC = () => {
             rows={2}
             value={formData.description}
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+            InputLabelProps={{ shrink: true }}
           />
           <Button variant="contained" size="large" onClick={handleAdd}>
-            ➕ ΠΡΟΣΘΗΚΗ ΥΠΑΛΛΗΛΟΥ
+            ➕ ΠΡΟΣΘΗΚΗ ΦΟΙΤΗΤΗ
           </Button>
         </Stack>
       </Paper>
@@ -264,7 +270,7 @@ const TasksPage: React.FC = () => {
       {tasks.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: "center" }}>
           <Typography color="text.secondary">
-            Δεν υπάρχουν υπάλληλοι σε αυτό το project.
+            Δεν υπάρχουν φοιτητές σε αυτό το project.
           </Typography>
         </Paper>
       ) : (
@@ -286,9 +292,10 @@ const TasksPage: React.FC = () => {
                   <Stack spacing={2}>
                     <TextField
                       fullWidth
-                      label="ΑΦΜ"
+                      label="AM"
                       defaultValue={task.codeNumber}
                       onChange={(e) => setFormData({ ...formData, codeNumber: e.target.value })}
+                      InputLabelProps={{ shrink: true }}
                     />
                     <Stack direction="row" spacing={2}>
                       <TextField
@@ -296,12 +303,14 @@ const TasksPage: React.FC = () => {
                         label="Όνομα"
                         defaultValue={task.firstName}
                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                        InputLabelProps={{ shrink: true }}
                       />
                       <TextField
                         fullWidth
                         label="Επώνυμο"
                         defaultValue={task.lastName}
                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                        InputLabelProps={{ shrink: true }}
                       />
                     </Stack>
                     <Stack direction="row" spacing={1}>
@@ -316,26 +325,26 @@ const TasksPage: React.FC = () => {
                 </Box>
               ) : (
                 <>
-                  <ListItemText
-                    primary={task.firstName + " " + task.lastName + " (ΑΦΜ: " + task.codeNumber + ")"}
-                    primaryTypographyProps={{
-                      variant: "h6",
-                      color: "primary",
-                      fontWeight: "bold"
-                    }}
-                    secondary={
-                      <Box component="div">
-                        <Typography variant="body2" component="div">
-                          Θέση: {task.title} | Κατάσταση: {task.status}
+                  <Box width="100%">
+                    <Typography
+                      variant="h6"
+                      color="primary"
+                      fontWeight="bold"
+                      component="div"
+                    >
+                      {task.firstName + " " + task.lastName + " (AM: " + task.codeNumber + ")"}
+                    </Typography>
+                    <Box mt={0.5} component="div">
+                      <Typography variant="body2" component="div">
+                        Θέση: {task.title} | Κατάσταση: {task.status}
+                      </Typography>
+                      {task.dateOfBirth && (
+                        <Typography variant="caption" component="div">
+                          📅 Γέννηση: {new Date(task.dateOfBirth).toLocaleDateString("el-GR")}
                         </Typography>
-                        {task.dateOfBirth && (
-                          <Typography variant="caption" component="div">
-                            📅 Γέννηση: {new Date(task.dateOfBirth).toLocaleDateString("el-GR")}
-                          </Typography>
-                        )}
-                      </Box>
-                    }
-                  />
+                      )}
+                    </Box>
+                  </Box>
                   <Stack direction="row" spacing={1}>
                     <Button
                       variant="outlined"
