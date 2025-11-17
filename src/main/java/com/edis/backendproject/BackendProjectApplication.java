@@ -1,12 +1,14 @@
 package com.edis.backendproject;
 
-import com.edis.backendproject.security.JwtProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
+import com.edis.backendproject.security.AppProperties;
+import com.edis.backendproject.security.JwtProperties;
+
 @SpringBootApplication
-@EnableConfigurationProperties(JwtProperties.class)
+@EnableConfigurationProperties({JwtProperties.class, AppProperties.class})
 public class BackendProjectApplication {
 
     public static void main(String[] args) {

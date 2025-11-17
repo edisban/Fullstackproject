@@ -1,9 +1,19 @@
 package com.edis.backendproject.model;
 
-import jakarta.persistence.*;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "tasks")
@@ -13,16 +23,16 @@ public class Task {
     private Long id;
 
     @Column(name = "code_number", unique = true, length = 20)
-    private String codeNumber;  // ✅ ΑΦΜ
+    private String codeNumber;
 
     @Column(name = "first_name", length = 100)
-    private String firstName;   // ✅ Όνομα
+    private String firstName;
 
     @Column(name = "last_name", length = 100)
-    private String lastName;    // ✅ Επώνυμο
+    private String lastName;
 
     @Column(name = "date_of_birth")
-    private LocalDate dateOfBirth;  // ✅ Ημερομηνία Γέννησης
+    private LocalDate dateOfBirth;
 
     @Column(nullable = false, length = 200)
     private String title;
@@ -32,12 +42,6 @@ public class Task {
 
     @Column(nullable = false, length = 50)
     private String status;
-
-    @Column(length = 50)
-    private String priority;
-
-    @Column(name = "due_date")
-    private LocalDate dueDate;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -74,12 +78,6 @@ public class Task {
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
-
-    public String getPriority() { return priority; }
-    public void setPriority(String priority) { this.priority = priority; }
-
-    public LocalDate getDueDate() { return dueDate; }
-    public void setDueDate(LocalDate dueDate) { this.dueDate = dueDate; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
