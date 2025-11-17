@@ -1,4 +1,4 @@
-package com.edis.backendproject.controller;
+import com.edis.backendproject.dto.LoginRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

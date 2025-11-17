@@ -24,26 +24,27 @@ import com.edis.backendproject.service.CustomUserDetailsService;
 public class SecurityConfig {
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider tokenProvider,
-                                                           CustomUserDetailsService customUserDetailsService) {
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            JwtTokenProvider tokenProvider,
+            CustomUserDetailsService customUserDetailsService) {
         return new JwtAuthenticationFilter(tokenProvider, customUserDetailsService);
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
-    http
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-        .csrf(csrf -> csrf.disable())
-        .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/api/auth/**").permitAll()
-            .requestMatchers("/api/projects/**").permitAll()
-            .requestMatchers("/api/tasks/**", "/api/students/**").authenticated()
-            .anyRequest().permitAll()
-        );
 
-    http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http
+            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/auth/**").permitAll()   // ✅ μόνο login/register δημόσιο
+                .anyRequest().authenticated()                  // ✅ όλα τα υπόλοιπα χρειάζονται JWT
+            );
+
+        // 🔐 Προσθήκη του custom JWT filter πριν το default authentication φίλτρο
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -74,7 +75,7 @@ public class SecurityConfig {
     @Bean
     @SuppressWarnings("deprecation")
     public PasswordEncoder passwordEncoder() {
-        // Using NoOp since passwords are already SHA-256 hashed in DB
+        // ⚠️ Χρησιμοποιείται επειδή τα passwords στη DB είναι ήδη SHA-256 hashed
         return NoOpPasswordEncoder.getInstance();
     }
 }

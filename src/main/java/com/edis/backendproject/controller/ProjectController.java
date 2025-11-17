@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.edis.backendproject.dto.ProjectRequest;
 import com.edis.backendproject.model.Project;
 import com.edis.backendproject.repository.ProjectRepository;
+
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/api/projects")
@@ -25,38 +28,54 @@ public class ProjectController {
     @Autowired
     private ProjectRepository projectRepository;
 
+    // 📌 GET - Επιστρέφει όλα τα projects
     @GetMapping
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
+    // 📌 GET - Επιστρέφει project με συγκεκριμένο id
     @GetMapping("/{id}")
     public ResponseEntity<Project> getProjectById(@PathVariable @NonNull Long id) {
-        // Use ResponseEntity.of to avoid generic type ambiguity warnings
         return ResponseEntity.of(projectRepository.findById(id));
     }
 
+    // 
     @PostMapping
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@Valid @RequestBody ProjectRequest request) {
         try {
-            if (projectRepository.findByName(project.getName()).isPresent()) {
+           
+            if (projectRepository.findByName(request.getName()).isPresent()) {
                 return ResponseEntity.badRequest().body("Project with this name already exists");
             }
+
+            
+            Project project = new Project();
+            project.setName(request.getName());
+            project.setDescription(request.getDescription());
+            project.setStartDate(request.getStartDate());
+
+            // Αποθήκευση στη βάση
             Project saved = projectRepository.save(project);
             return ResponseEntity.ok(saved);
+
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error creating project: " + e.getMessage());
+            return ResponseEntity
+                    .badRequest()
+                    .body("Error creating project: " + e.getMessage());
         }
     }
 
+    
     @PutMapping("/{id}")
-    public ResponseEntity<Project> updateProject(@PathVariable @NonNull Long id, @RequestBody Project projectDetails) {
+    public ResponseEntity<Project> updateProject(@PathVariable @NonNull Long id,
+                                                 @Valid @RequestBody ProjectRequest request) {
         try {
             return projectRepository.findById(id)
                     .map(project -> {
-                        project.setName(projectDetails.getName());
-                        project.setDescription(projectDetails.getDescription());
-                        project.setStartDate(projectDetails.getStartDate());
+                        project.setName(request.getName());
+                        project.setDescription(request.getDescription());
+                        project.setStartDate(request.getStartDate());
                         return ResponseEntity.ok(projectRepository.save(project));
                     })
                     .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
@@ -65,6 +84,7 @@ public class ProjectController {
         }
     }
 
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteProject(@PathVariable @NonNull Long id) {
         try {
@@ -78,3 +98,4 @@ public class ProjectController {
         }
     }
 }
+    
