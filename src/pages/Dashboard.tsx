@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
 import {
   Box,
   Button,
@@ -15,28 +14,47 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
+import { useForm } from "react-hook-form";
 import {
   getProjects,
   createProject,
   updateProject,
   deleteProject,
   Project,
-} from "../api/projects";
+} from "@/api/projects";
+
+type ProjectFormValues = {
+  name: string;
+  description: string;
+  startDate: string;
+};
+
+const normalizeDateInput = (value?: string) => {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toISOString().split("T")[0];
+};
 
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState<Project>({
-    name: "",
-    description: "",
-    startDate: "",
-  });
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
+  });
+
+  const createForm = useForm<ProjectFormValues>({
+    defaultValues: { name: "", description: "", startDate: "" },
+  });
+
+  const editForm = useForm<ProjectFormValues>({
+    defaultValues: { name: "", description: "", startDate: "" },
   });
 
   const fetchProjects = async () => {
@@ -45,8 +63,8 @@ const Dashboard: React.FC = () => {
       const data = await getProjects();
       setProjects(data);
     } catch (error: any) {
-      console.error("❌ Failed to fetch projects:", error);
-      showSnackbar("Αποτυχία φόρτωσης projects", "error");
+  console.error("❌ Failed to fetch projects:", error);
+  showSnackbar("Failed to load projects", "error");
     } finally {
       setLoading(false);
     }
@@ -56,60 +74,58 @@ const Dashboard: React.FC = () => {
     fetchProjects();
   }, []);
 
+  useEffect(() => {
+    if (editingProject) {
+      editForm.reset({
+        name: editingProject.name || "",
+        description: editingProject.description || "",
+        startDate: normalizeDateInput(editingProject.startDate),
+      });
+    }
+  }, [editingProject, editForm]);
+
   const showSnackbar = (message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
   };
 
-  const handleAdd = async () => {
-    if (!formData.name.trim()) {
-      showSnackbar("Συμπλήρωσε το όνομα του project!", "error");
-      return;
-    }
-
+  const handleCreateProject = async (values: ProjectFormValues) => {
     try {
-      const newProj = await createProject(formData);
-      setProjects([...projects, newProj]);
-      setFormData({ name: "", description: "", startDate: "" });
-      showSnackbar("Project δημιουργήθηκε επιτυχώς!", "success");
+      const newProj = await createProject(values);
+      setProjects((prev) => [...prev, newProj]);
+      createForm.reset();
+      showSnackbar("Project created successfully!", "success");
     } catch (error: any) {
-      console.error("❌ Failed to create project:", error);
-      const errorMsg = error.response?.data || "Αποτυχία δημιουργίας project";
+      const errorMsg = error.response?.data || "Failed to create project";
       showSnackbar(errorMsg, "error");
     }
   };
 
-  const handleUpdate = async (id: number) => {
-    const updated = projects.find((p) => p.id === id);
-    if (!updated) return;
-
+  const handleEditProject = async (values: ProjectFormValues) => {
+    if (!editingProject?.id) return;
     try {
-      const newData = await updateProject(id, {
-        name: formData.name || updated.name,
-        description: formData.description || updated.description,
-        startDate: formData.startDate || updated.startDate,
-      });
-
-      setProjects((prev) => prev.map((p) => (p.id === id ? newData : p)));
-      setEditingId(null);
-      setFormData({ name: "", description: "", startDate: "" });
-      showSnackbar("Project ενημερώθηκε επιτυχώς!", "success");
+      const updated = await updateProject(editingProject.id, values);
+      setProjects((prev) => prev.map((p) => (p.id === editingProject.id ? updated : p)));
+      setEditingProject(null);
+      showSnackbar("Project updated successfully!", "success");
     } catch (error: any) {
-      console.error("❌ Failed to update project:", error);
-      const errorMsg = error.response?.data || "Αποτυχία ενημέρωσης project";
+      const errorMsg = error.response?.data || "Failed to update project";
       showSnackbar(errorMsg, "error");
     }
   };
 
   const handleDelete = async (id: number) => {
-    if (window.confirm("Είσαι σίγουρος ότι θες να διαγράψεις το project;")) {
-      try {
-        await deleteProject(id);
-        setProjects(projects.filter((p) => p.id !== id));
-        showSnackbar("Project διαγράφηκε επιτυχώς!", "success");
-      } catch (error: any) {
-        console.error("❌ Failed to delete project:", error);
-        showSnackbar("Αποτυχία διαγραφής project", "error");
+    if (!window.confirm("Are you sure you want to delete this project?")) {
+      return;
+    }
+    try {
+      await deleteProject(id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+      if (editingProject?.id === id) {
+        setEditingProject(null);
       }
+      showSnackbar("Project deleted successfully!", "success");
+    } catch (error: any) {
+      showSnackbar("Failed to delete project", "error");
     }
   };
 
@@ -122,50 +138,84 @@ const Dashboard: React.FC = () => {
   }
 
   return (
-    <Box p={4}>
-      <Typography variant="h4" color="primary" fontWeight="bold" gutterBottom>
+    <Box p={{ xs: 2, sm: 3, md: 4 }}>
+      <Typography
+        variant="h4"
+        color="primary"
+        fontWeight="bold"
+        gutterBottom
+        sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" } }}
+      >
         📋 Projects Dashboard
       </Typography>
 
-    {/* ADD FORM */}
-    <Paper sx={{ p: 3, mb: 3 }}>
-        <Typography variant="h6" gutterBottom>
-          ➕ Δημιουργία Project
+      {/* ADD FORM */}
+      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+        <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
+          ➕ Create Project
         </Typography>
-        <Stack spacing={2}>
-          <TextField
-            label="Project Name"
-            placeholder="π.χ. Website Redesign"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-          <TextField
-            label="Description"
-            placeholder="Περιγραφή του project..."
-            multiline
-            rows={3}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          />
-          <TextField
-            label="Start Date"
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={formData.startDate}
-            onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-          />
-          <Button variant="contained" size="large" onClick={handleAdd}>
-            ➕ ΔΗΜΙΟΥΡΓΙΑ PROJECT
-          </Button>
-        </Stack>
+        <Box component="form" noValidate onSubmit={createForm.handleSubmit(handleCreateProject)}>
+          <Stack spacing={2.5}>
+            <Stack spacing={0.5}>
+              <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                Project name *
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="e.g. Website Redesign"
+                {...createForm.register("name", {
+                  required: "Project name is required",
+                  minLength: { value: 3, message: "At least 3 characters" },
+                })}
+                error={!!createForm.formState.errors.name}
+                helperText={createForm.formState.errors.name?.message}
+              />
+            </Stack>
+            <Stack spacing={0.5}>
+              <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                Description
+              </Typography>
+              <TextField
+                fullWidth
+                placeholder="Describe the project..."
+                multiline
+                rows={3}
+                {...createForm.register("description")}
+              />
+            </Stack>
+            <Stack spacing={0.5}>
+              <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                Start date
+              </Typography>
+              <TextField
+                fullWidth
+                type="date"
+                {...createForm.register("startDate", {
+                  validate: (value) =>
+                    !value || !Number.isNaN(Date.parse(value)) || "Invalid date",
+                })}
+                error={!!createForm.formState.errors.startDate}
+                helperText={createForm.formState.errors.startDate?.message}
+              />
+            </Stack>
+            <Button
+              type="submit"
+              variant="contained"
+              size="large"
+              fullWidth
+              disabled={createForm.formState.isSubmitting}
+            >
+              {createForm.formState.isSubmitting ? "Saving..." : "CREATE PROJECT"}
+            </Button>
+          </Stack>
+        </Box>
       </Paper>
 
       {/* LIST */}
       {projects.length === 0 ? (
         <Paper sx={{ p: 4, textAlign: "center" }}>
           <Typography color="text.secondary">
-            Δεν υπάρχουν projects. Δημιούργησε το πρώτο σου!
+            No projects yet. Create your first one!
           </Typography>
         </Paper>
       ) : (
@@ -182,51 +232,76 @@ const Dashboard: React.FC = () => {
                 py: 2,
               }}
             >
-              {editingId === project.id ? (
+              {editingProject?.id === project.id ? (
                 <Box width="100%">
-                  <Stack spacing={2}>
-                    <TextField
-                      fullWidth
-                      label="Όνομα"
-                      defaultValue={project.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Περιγραφή"
-                      multiline
-                      rows={3}
-                      defaultValue={project.description}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    />
-                    <TextField
-                      fullWidth
-                      label="Start Date"
-                      type="date"
-                      InputLabelProps={{ shrink: true }}
-                      defaultValue={project.startDate}
-                      onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                    />
-                    <Stack direction="row" spacing={1}>
-                      <Button
-                        variant="contained"
-                        color="success"
-                        onClick={() => handleUpdate(project.id!)}
-                      >
-                        💾 Αποθήκευση
-                      </Button>
-                      <Button
-                        variant="outlined"
-                        color="inherit"
-                        onClick={() => {
-                          setEditingId(null);
-                          setFormData({ name: "", description: "", startDate: "" });
-                        }}
-                      >
-                        ❌ Άκυρο
-                      </Button>
+                  <Box
+                    component="form"
+                    noValidate
+                    onSubmit={editForm.handleSubmit(handleEditProject)}
+                  >
+                    <Stack spacing={2}>
+                      <Stack spacing={0.5}>
+                        <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                          Name *
+                        </Typography>
+                        <TextField
+                          fullWidth
+                          {...editForm.register("name", {
+                            required: "Name is required",
+                          })}
+                          error={!!editForm.formState.errors.name}
+                          helperText={editForm.formState.errors.name?.message}
+                        />
+                      </Stack>
+                      <Stack spacing={0.5}>
+                        <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                          Description
+                        </Typography>
+                        <TextField
+                          fullWidth
+                          multiline
+                          rows={3}
+                          {...editForm.register("description")}
+                        />
+                      </Stack>
+                      <Stack spacing={0.5}>
+                        <Typography variant="subtitle2" fontWeight={600} color="text.primary">
+                          Start date
+                        </Typography>
+                        <TextField
+                          type="date"
+                          fullWidth
+                          {...editForm.register("startDate", {
+                            validate: (value) =>
+                              !value ||
+                                !Number.isNaN(Date.parse(value)) ||
+                                "Invalid date",
+                          })}
+                          error={!!editForm.formState.errors.startDate}
+                          helperText={editForm.formState.errors.startDate?.message}
+                        />
+                      </Stack>
+                      <Stack direction={{ xs: "column", sm: "row" }} spacing={1} width="100%">
+                        <Button
+                          type="submit"
+                          variant="contained"
+                          color="success"
+                          fullWidth
+                          disabled={editForm.formState.isSubmitting}
+                        >
+                          {editForm.formState.isSubmitting ? "Saving..." : "💾 Save"}
+                        </Button>
+                        <Button
+                          variant="outlined"
+                          color="inherit"
+                          fullWidth
+                          onClick={() => setEditingProject(null)}
+                        >
+                          ❌ Cancel
+                        </Button>
+                      </Stack>
                     </Stack>
-                  </Stack>
+                  </Box>
                 </Box>
               ) : (
                 <>
@@ -244,7 +319,7 @@ const Dashboard: React.FC = () => {
                           color="text.secondary"
                           component="div"
                         >
-                          {project.description || "Χωρίς περιγραφή"}
+                          {project.description || "No description"}
                         </Typography>
                         {project.startDate && (
                           <Typography
@@ -253,8 +328,8 @@ const Dashboard: React.FC = () => {
                             component="div"
                             sx={{ mt: 0.5 }}
                           >
-                            📅 Ημερομηνία έναρξης:{" "}
-                            {new Date(project.startDate).toLocaleDateString("el-GR")}
+                            📅 Start date:{" "}
+                            {new Date(project.startDate).toLocaleDateString("en-US")}
                           </Typography>
                         )}
                         {project.createdAt && (
@@ -263,41 +338,43 @@ const Dashboard: React.FC = () => {
                             color="text.secondary"
                             component="div"
                           >
-                            🕒 Δημιουργήθηκε:{" "}
-                            {new Date(project.createdAt).toLocaleString("el-GR")}
+                            🕒 Created:{" "}
+                            {new Date(project.createdAt).toLocaleString("en-US")}
                           </Typography>
                         )}
                       </Box>
                     }
                   />
-                  <Stack direction="row" spacing={1}>
+                  <Stack direction={{ xs: "column", sm: "row" }} spacing={1} width="100%">
                     <Button
                       variant="contained"
                       color="primary"
+                      fullWidth
                       onClick={() => navigate(`/tasks/${project.id}`)}
                     >
-                      📋 Tasks
+                      📋 Students
                     </Button>
                     <Button
                       variant="outlined"
-                      color="primary"
+                      fullWidth
                       onClick={() => {
-                        setEditingId(project.id!);
-                        setFormData({
+                        setEditingProject(project);
+                        editForm.reset({
                           name: project.name,
                           description: project.description,
                           startDate: project.startDate || "",
                         });
                       }}
                     >
-                      ✏️ Επεξεργασία
+                      ✏️ Edit
                     </Button>
                     <Button
                       variant="outlined"
                       color="error"
+                      fullWidth
                       onClick={() => handleDelete(project.id!)}
                     >
-                      🗑️ Διαγραφή
+                      🗑️ Delete
                     </Button>
                   </Stack>
                 </>

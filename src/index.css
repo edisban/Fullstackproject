@@ -9,7 +9,7 @@ code {
 
 /* Blue-centric, clean look for native elements (used in Login page) */
 :root {
-  /* Earthy green scale (kept variable names for minimal code touches) */
+  /* Earthy green scale */
   --blue-50: #dfe7df;
   --blue-100: #cfd9cd;
   --blue-200: #b4c8b7;
@@ -46,7 +46,7 @@ input::placeholder, textarea::placeholder {
 input:focus, textarea:focus, select:focus {
   outline: none;
   border-color: var(--blue-700);
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+  box-shadow: 0 0 0 3px rgba(90, 141, 130, 0.25);
 }
 
 /* Buttons without MUI (e.g., Login page submit) */
@@ -78,7 +78,7 @@ button[type="submit"]:active, .btn-primary:active {
 
 /* Optional: keep an accent class for blue areas if needed */
 .add-form-paper {
-  background: #132a63 !important; /* light blue card */
+  background: #132a63 !important;
   color: #ffffff !important;
   border: 1px solid rgba(255,255,255,0.12);
 }

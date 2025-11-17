@@ -10,7 +10,7 @@ import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import Dashboard from "./pages/Dashboard";
 import LoginPage from "./pages/LoginPage";
-import TasksPage from "./pages/TasksPage"; // ✅ Προσθήκη
+import TasksPage from "./pages/TasksPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 const router = createBrowserRouter(
@@ -26,7 +26,6 @@ const router = createBrowserRouter(
           </ProtectedRoute>
         }
       />
-      {/* ✅ Νέο route για Tasks */}
       <Route
         path="tasks/:projectId"
         element={

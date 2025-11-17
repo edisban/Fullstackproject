@@ -9,6 +9,7 @@ const Footer: React.FC = () => {
       component="footer"
       sx={{
         py: 2,
+        px: { xs: 2, sm: 3 },
         mt: "auto",
         textAlign: "center",
         color: "#ffffff",
@@ -16,7 +17,7 @@ const Footer: React.FC = () => {
         borderTop: "1px solid rgba(255,255,255,0.12)",
       }}
     >
-      <Typography variant="body2" color="inherit">
+      <Typography variant="body2" color="inherit" sx={{ fontSize: { xs: "0.8rem", sm: "0.875rem" } }}>
         © {new Date().getFullYear()} Project Manager — All rights reserved.
       </Typography>
     </Box>
