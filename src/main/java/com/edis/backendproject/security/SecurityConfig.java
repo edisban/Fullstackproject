@@ -9,7 +9,6 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,11 +38,11 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()   // ✅ μόνο login/register δημόσιο
-                .anyRequest().authenticated()                  // ✅ όλα τα υπόλοιπα χρειάζονται JWT
+                .requestMatchers("/api/auth/**").permitAll()  
+                .anyRequest().authenticated()                 
             );
 
-        // 🔐 Προσθήκη του custom JWT filter πριν το default authentication φίλτρο
+       
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -73,9 +72,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    @SuppressWarnings("deprecation")
     public PasswordEncoder passwordEncoder() {
-        // ⚠️ Χρησιμοποιείται επειδή τα passwords στη DB είναι ήδη SHA-256 hashed
-        return NoOpPasswordEncoder.getInstance();
+        return new Sha256PasswordEncoder();
     }
 }

@@ -6,6 +6,6 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    // 🔍 Αναζήτηση χρήστη με βάση το username
+
     Optional<User> findByUsername(String username);
 }

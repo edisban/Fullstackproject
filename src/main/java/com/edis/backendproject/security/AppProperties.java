@@ -5,13 +5,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "app.auth")
 public class AppProperties {
 
-	/**
-	 * When true, login requests expect SHA-256 hashed passwords (legacy schema).
-	 * When false, the backend treats passwords as plain text before encoding.
-	 */
 	private boolean useSha256Passwords = true;
 
-	/** Default credentials used to bootstrap an admin account when none exists. */
+	
 	private String defaultAdminUsername = "admin";
 	private String defaultAdminPassword = "123456";
 

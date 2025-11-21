@@ -4,17 +4,20 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import com.edis.backendproject.model.Task;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
 
-    // Tasks ενός project
+    
     List<Task> findByProjectId(Long projectId);
 
-    // Αναζήτηση με ΑΦΜ
+    
     Optional<Task> findByCodeNumber(String codeNumber);
 
-    // Αναζήτηση με όνομα ή επώνυμο
-    List<Task> findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(String firstName, String lastName);
+   
+    @Query("SELECT t FROM Task t WHERE LOWER(t.firstName) LIKE LOWER(CONCAT('%', :searchTerm, '%')) OR LOWER(t.lastName) LIKE LOWER(CONCAT('%', :searchTerm, '%'))")
+    List<Task> searchByName(@Param("searchTerm") String searchTerm);
 }
