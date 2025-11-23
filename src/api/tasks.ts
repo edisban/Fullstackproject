@@ -1,59 +1,66 @@
-import api from "./axiosInstance";
+import axiosInstance from "./axiosInstance";
 
 export interface Task {
-  id?: number;
+  id: number;
   codeNumber: string;
   firstName: string;
   lastName: string;
-  dateOfBirth?: string;
+  dateOfBirth: string;
   title: string;
-  description?: string;
+  description: string;
   status: string;
   projectId: number;
   createdAt?: string;
+  updatedAt?: string;
 }
 
-// Get tasks by project
+export interface TaskRequest {
+  codeNumber: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: string;
+  title: string;
+  description: string;
+  status: string;
+  projectId: number;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+}
+
+const TASKS_ENDPOINT = "/tasks";
+
 export const getTasksByProject = async (projectId: number): Promise<Task[]> => {
-  const response = await api.get(`/tasks/project/${projectId}`);
-  return response.data;
+  const response = await axiosInstance.get<ApiResponse<Task[]>>(`${TASKS_ENDPOINT}?projectId=${projectId}`);
+  return response.data.data;
 };
 
-// Get one task
 export const getTaskById = async (id: number): Promise<Task> => {
-  const response = await api.get(`/tasks/${id}`);
-  return response.data;
+  const response = await axiosInstance.get<ApiResponse<Task>>(`${TASKS_ENDPOINT}/${id}`);
+  return response.data.data;
 };
 
-// Create task
-export const createTask = async (taskData: Task): Promise<Task> => {
-  const response = await api.post("/tasks", taskData);
-  return response.data;
+export const createTask = async (task: TaskRequest): Promise<Task> => {
+  const response = await axiosInstance.post<ApiResponse<Task>>(TASKS_ENDPOINT, task);
+  return response.data.data;
 };
 
-// Update task
-export const updateTask = async (id: number, taskData: Partial<Task>): Promise<Task> => {
-  const response = await api.put(`/tasks/${id}`, taskData);
-  return response.data;
+export const updateTask = async (id: number, task: TaskRequest): Promise<Task> => {
+  const response = await axiosInstance.put<ApiResponse<Task>>(`${TASKS_ENDPOINT}/${id}`, task);
+  return response.data.data;
 };
 
-// Delete task
 export const deleteTask = async (id: number): Promise<void> => {
-  await api.delete(`/tasks/${id}`);
+  await axiosInstance.delete(`${TASKS_ENDPOINT}/${id}`);
 };
 
-// Search by code/AM
-export const searchTaskByCode = async (code: string): Promise<Task> => {
-  const response = await api.get(`/tasks/search/code`, {
-    params: { am: code, code },
-  });
-  return response.data;
-};
-
-// Search by name
-export const searchTasksByName = async (name: string): Promise<Task[]> => {
-  const response = await api.get(`/tasks/search/name`, {
-    params: { name },
-  });
-  return response.data;
+export const searchTasks = async (query: string): Promise<Task[]> => {
+  const response = await axiosInstance.get<ApiResponse<Task[]>>(
+    `${TASKS_ENDPOINT}/search?query=${encodeURIComponent(query)}`
+  );
+  return response.data.data;
 };

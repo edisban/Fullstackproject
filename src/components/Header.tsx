@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useCallback, memo } from "react";
 import {
   AppBar,
   Toolbar,
@@ -19,23 +19,38 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 
-const Header: React.FC = () => {
+const Header: React.FC = memo(() => {
   const { token, user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
+  const handleLogout = useCallback(() => {
     setDrawerOpen(false);
-  };
+    
+    sessionStorage.setItem("intentionalLogout", "true");
+    
+    logout();
+    
+    navigate("/", {
+      replace: true,
+      state: null,
+    });
+  }, [navigate, logout]);
 
-  const handleNavClick = (path: string) => {
+  const handleNavClick = useCallback((path: string) => {
     navigate(path);
     setDrawerOpen(false);
-  };
+  }, [navigate]);
+
+  const handleDrawerOpen = useCallback(() => {
+    setDrawerOpen(true);
+  }, []);
+
+  const handleDrawerClose = useCallback(() => {
+    setDrawerOpen(false);
+  }, []);
 
   const navItems = [
     { label: "Home", path: "/" },
@@ -45,15 +60,29 @@ const Header: React.FC = () => {
   return (
     <AppBar position="sticky" color="primary">
       <Toolbar>
-        <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="h6" sx={{ fontSize: { xs: "1rem", sm: "1.25rem" } }}>
+        <Box sx={{ flexGrow: 1, display: "flex", flexDirection: "column", gap: 0.5 }}>
+          <Typography
+            variant="h6"
+            component={Link}
+            to="/"
+            color="inherit"
+            sx={{
+              fontSize: { xs: "1rem", sm: "1.25rem" },
+              textDecoration: "none",
+              cursor: "pointer",
+            }}
+          >
             Project Manager
           </Typography>
+
           {token && user?.username && (
             <Typography
               variant="caption"
               color="inherit"
-              sx={{ opacity: 0.8, display: { xs: "none", sm: "block" } }}
+              sx={{
+                opacity: 0.8,
+                fontSize: { xs: "0.7rem", sm: "0.75rem" },
+              }}
             >
               Signed in as {user.username}
             </Typography>
@@ -64,7 +93,7 @@ const Header: React.FC = () => {
           <IconButton
             color="inherit"
             edge="end"
-            onClick={() => setDrawerOpen(true)}
+            onClick={handleDrawerOpen}
             aria-label="menu"
           >
             <MenuIcon />
@@ -74,15 +103,13 @@ const Header: React.FC = () => {
             <Button color="inherit" component={Link} to="/">
               Home
             </Button>
+
             <Button color="inherit" component={Link} to="/dashboard">
               Dashboard
             </Button>
-            {!token ? (
-              <Button color="inherit" component={Link} to="/login">
-                Login
-              </Button>
-            ) : (
-              <Button color="inherit" onClick={handleLogout}>
+
+            {token && (
+              <Button color="inherit" onClick={handleLogout }>
                 Logout
               </Button>
             )}
@@ -90,13 +117,24 @@ const Header: React.FC = () => {
         )}
       </Toolbar>
 
-      <Drawer anchor="right" open={drawerOpen} onClose={() => setDrawerOpen(false)}>
+      <Drawer
+        anchor="right"
+        open={drawerOpen}
+        onClose={handleDrawerClose}
+        PaperProps={{
+          sx: {
+            backgroundColor: "#143C36",
+            color: "white",
+          },
+        }}
+      >
         <Box sx={{ width: 250, pt: 2 }} role="presentation">
           <Box sx={{ display: "flex", justifyContent: "flex-end", px: 1 }}>
-            <IconButton onClick={() => setDrawerOpen(false)}>
-              <CloseIcon />
+            <IconButton onClick={handleDrawerClose}>
+              <CloseIcon sx={{ color: "white" }} />
             </IconButton>
           </Box>
+
           <List>
             {navItems.map((item) => (
               <ListItem key={item.path} disablePadding>
@@ -105,17 +143,27 @@ const Header: React.FC = () => {
                 </ListItemButton>
               </ListItem>
             ))}
-            <ListItem disablePadding>
-              <ListItemButton
-                onClick={() => (token ? handleLogout() : handleNavClick("/login"))}
-              >
-                <ListItemText primary={token ? "Logout" : "Login"} />
-              </ListItemButton>
-            </ListItem>
+
+            {token && (
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            )}
           </List>
+
           {token && user?.username && (
-            <Box sx={{ px: 2, py: 1, borderTop: 1, borderColor: "divider", mt: 2 }}>
-              <Typography variant="caption" color="text.secondary">
+            <Box
+              sx={{
+                px: 2,
+                py: 1,
+                borderTop: 1,
+                borderColor: "rgba(255,255,255,0.2)",
+                mt: 2,
+              }}
+            >
+              <Typography variant="caption" color="white">
                 Signed in as {user.username}
               </Typography>
             </Box>
@@ -124,6 +172,8 @@ const Header: React.FC = () => {
       </Drawer>
     </AppBar>
   );
-};
+});
+
+Header.displayName = "Header";
 
 export default Header;

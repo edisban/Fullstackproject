@@ -1,26 +1,25 @@
 import { createTheme } from "@mui/material/styles";
 
-// Central blue theme with pleasant hovers and rounded corners
-// Keep it lightweight and safe: no behavior changes, only visuals.
+
 const theme = createTheme({
 	palette: {
 			mode: "light",
-		// Earthy Green palette
+		
 		primary: {
-			main: "#517d73", // mid sage/teal
+			main: "#517d73", 
 			light: "#8fb296",
 			dark: "#344e52",
 			contrastText: "#ffffff",
 		},
 		secondary: {
-			main: "#344e52", // deep slate green
+			main: "#344e52", 
 			light: "#5d767a",
 			dark: "#22363a",
 			contrastText: "#ffffff",
 		},
 			background: {
-				default: "#0f1f1c", // dark moss background across all routes
-				paper: "#1e3a36", // lighter card tint
+				default: "#0f1f1c", 
+				paper: "#1e3a36", 
 			},
 		text: {
 			primary: "#ffffff",

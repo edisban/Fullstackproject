@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { getErrorMessage, type ApiError } from "@/types/errors";
 import {
   Box,
   Button,
   Typography,
-  CircularProgress,
+  Skeleton,
   List,
   ListItem,
   TextField,
@@ -22,10 +23,10 @@ import {
   createTask,
   updateTask,
   deleteTask,
-  searchTaskByCode,
-  searchTasksByName,
+  searchTasks,
   Task,
 } from "@/api/tasks";
+import { getProjectById, type Project } from "@/api/projects";
 
 type TaskFormValues = {
   codeNumber: string;
@@ -67,12 +68,14 @@ const TasksPage: React.FC = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: "",
     severity: "success" as "success" | "error",
   });
   const [searchMessage, setSearchMessage] = useState<string>("");
+  const [projectName, setProjectName] = useState<string>("");
 
   const taskForm = useForm<TaskFormValues>({
     defaultValues: buildTaskDefaults(numericProjectId),
@@ -86,44 +89,27 @@ const TasksPage: React.FC = () => {
     defaultValues: { query: "" },
   });
 
-  const getErrorMessage = (error: any, fallback: string) => {
-    const apiData = error?.response?.data;
-    if (typeof apiData === "string") {
-      return apiData;
-    }
-    if (apiData && typeof apiData === "object") {
-      if (typeof apiData.message === "string" && apiData.message.trim().length > 0) {
-        return apiData.message;
-      }
-      if (typeof apiData.error === "string") {
-        return apiData.error;
-      }
-    }
-    if (typeof error?.message === "string" && error.message.trim().length > 0) {
-      return error.message;
-    }
-    return fallback;
-  };
-
-  const fetchTasks = async () => {
+  const fetchTasks = useCallback(async () => {
     setLoading(true);
     try {
       const data = await getTasksByProject(numericProjectId);
       setTasks(data);
-    } catch (error: any) {
-      console.error("❌ Failed to fetch tasks:", error);
+    } catch (error: unknown) {
       showSnackbar(getErrorMessage(error, "Failed to load students"), "error");
     } finally {
       setLoading(false);
     }
-  };
+  }, [numericProjectId]);
 
   useEffect(() => {
     if (!Number.isFinite(numericProjectId)) {
       return;
     }
     fetchTasks();
-  }, [numericProjectId]);
+    getProjectById(numericProjectId)
+      .then((project: Project) => setProjectName(project.name))
+      .catch(() => setProjectName(""));
+  }, [numericProjectId, fetchTasks]);
 
   useEffect(() => {
     taskForm.reset(buildTaskDefaults(numericProjectId));
@@ -140,23 +126,23 @@ const TasksPage: React.FC = () => {
     }
   }, [editingTask, editTaskForm, numericProjectId]);
 
-  const showSnackbar = (message: string, severity: "success" | "error") => {
+  const showSnackbar = useCallback((message: string, severity: "success" | "error") => {
     setSnackbar({ open: true, message, severity });
-  };
+  }, []);
 
-  const handleAdd = async (values: TaskFormValues) => {
+  const handleAdd = useCallback(async (values: TaskFormValues) => {
     try {
       const payload = { ...values, projectId: numericProjectId };
       const newTask = await createTask(payload);
       setTasks((prev) => [...prev, newTask]);
       taskForm.reset(buildTaskDefaults(numericProjectId));
       showSnackbar("Student added successfully!", "success");
-    } catch (error: any) {
+    } catch (error: unknown) {
       showSnackbar(getErrorMessage(error, "Failed to create student"), "error");
     }
-  };
+  }, [numericProjectId, taskForm, showSnackbar]);
 
-  const handleUpdate = async (values: TaskFormValues) => {
+  const handleUpdate = useCallback(async (values: TaskFormValues) => {
     if (!editingTask?.id) return;
     try {
       const payload = { ...values, projectId: numericProjectId };
@@ -164,12 +150,12 @@ const TasksPage: React.FC = () => {
       setTasks((prev) => prev.map((t) => (t.id === editingTask.id ? updated : t)));
       setEditingTask(null);
       showSnackbar("Student updated successfully!", "success");
-    } catch (error: any) {
-      showSnackbar("Failed to update student", "error");
+    } catch (error: unknown) {
+      showSnackbar(getErrorMessage(error, "Failed to update student"), "error");
     }
-  };
+  }, [editingTask, numericProjectId, showSnackbar]);
 
-  const handleDelete = async (id: number) => {
+  const handleDelete = useCallback(async (id: number) => {
     if (!window.confirm("Are you sure you want to delete this student?")) {
       return;
     }
@@ -180,45 +166,38 @@ const TasksPage: React.FC = () => {
         setEditingTask(null);
       }
       showSnackbar("Student deleted successfully!", "success");
-    } catch (error: any) {
+    } catch (error: unknown) {
       showSnackbar(getErrorMessage(error, "Failed to delete student"), "error");
     }
-  };
+  }, [editingTask, showSnackbar]);
 
-  const handleSearch = async ({ query }: { query: string }) => {
+  const handleSearch = useCallback(async ({ query }: { query: string }) => {
     const trimmed = query.trim();
     if (!trimmed) {
       setSearchMessage("Enter a search term");
       return;
     }
 
-try {
-  const byCode = await searchTaskByCode(trimmed);
-  setTasks([byCode]);
-  setSearchMessage(byCode ? "Found 1 student" : "No results found");
-} catch (error: any) {
-  // Αν είναι "Not Found", αγνόησέ το
-  if (error?.response?.status !== 404) {
-    console.error("Error searching by code:", error);
-  }
+    try {
+      const results = await searchTasks(trimmed);
+      setTasks(results);
+      
+      if (results.length === 0) {
+        setSearchMessage("No results found.");
+      } else {
+        setSearchMessage(`Found ${results.length} student(s)`);
+      }
+    } catch (error: unknown) {
+      setTasks([]);
+      setSearchMessage("Search failed. Please try again.");
+    }
+  }, []);
 
-  try {
-    const byName = await searchTasksByName(trimmed);
-    setTasks(byName);
-    setSearchMessage(byName.length ? "" : "No results found");
-  } catch (error) {
-    setTasks([]);
-    setSearchMessage("No results found");
-  }
-}
-
-  };
-
-  const resetSearch = () => {
+  const resetSearch = useCallback(() => {
     searchForm.reset();
     setSearchMessage("");
     fetchTasks();
-  };
+  }, [searchForm, fetchTasks]);
 
   if (!Number.isFinite(numericProjectId)) {
     return (
@@ -230,8 +209,41 @@ try {
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
+      <Box p={{ xs: 2, sm: 3, md: 4 }}>
+        <Box display="flex" alignItems="center" mb={3} gap={1}>
+          <Skeleton variant="circular" width={40} height={40} />
+          <Skeleton variant="text" width={300} height={50} />
+        </Box>
+        
+        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+          <Skeleton variant="text" width={200} height={30} sx={{ mb: 2 }} />
+          <Skeleton variant="rectangular" height={56} sx={{ mb: 2 }} />
+          <Stack direction="row" spacing={2}>
+            <Skeleton variant="rectangular" width={100} height={36} />
+            <Skeleton variant="rectangular" width={100} height={36} />
+          </Stack>
+        </Paper>
+
+        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+          <Skeleton variant="text" width={150} height={30} sx={{ mb: 2 }} />
+          <Skeleton variant="rectangular" height={56} sx={{ mb: 1 }} />
+          <Skeleton variant="rectangular" height={56} sx={{ mb: 1 }} />
+          <Skeleton variant="rectangular" height={56} sx={{ mb: 1 }} />
+          <Skeleton variant="rectangular" height={56} sx={{ mb: 1 }} />
+          <Stack direction="row" spacing={2} mt={2}>
+            <Skeleton variant="rectangular" width={100} height={36} />
+            <Skeleton variant="rectangular" width={100} height={36} />
+          </Stack>
+        </Paper>
+
+        <Paper sx={{ p: { xs: 2, sm: 3 } }}>
+          <Skeleton variant="text" width={200} height={30} sx={{ mb: 2 }} />
+          <Stack spacing={2}>
+            <Skeleton variant="rectangular" height={80} />
+            <Skeleton variant="rectangular" height={80} />
+            <Skeleton variant="rectangular" height={80} />
+          </Stack>
+        </Paper>
       </Box>
     );
   }
@@ -240,8 +252,8 @@ try {
   return (
     <Box p={{ xs: 2, sm: 3, md: 4 }}>
       <Box display="flex" alignItems="center" mb={3} flexWrap="wrap" gap={1}>
-        <IconButton onClick={() => navigate("/dashboard")}>
-          <ArrowBack />
+        <IconButton onClick={() => navigate("/dashboard")}> 
+          <ArrowBack sx={{ color: '#fff' }} />
         </IconButton>
         <Typography
           variant="h4"
@@ -249,7 +261,7 @@ try {
           fontWeight="bold"
           sx={{ fontSize: { xs: "1.5rem", sm: "2rem", md: "2.125rem" } }}
         >
-          👥 Project #{projectId} Students
+          👥 Project: {projectName ? projectName : projectId} 
         </Typography>
       </Box>
 
@@ -262,20 +274,50 @@ try {
           alignItems={{ xs: "stretch", md: "flex-end" }}
           onSubmit={searchForm.handleSubmit(handleSearch)}
         >
-          <TextField
+          <Box width="100%">
+            <Typography variant="body2" color="text.secondary" mb={1} fontWeight={500}>
+              🔍 Search (Student ID or Name)
+            </Typography>
+            <TextField
+              fullWidth
+              placeholder="e.g. 123456789 or John"
+              {...searchForm.register("query", {
+                required: "Enter a search term",
+              })}
+              error={Boolean(searchForm.formState.errors.query)}
+              helperText={searchForm.formState.errors.query?.message || ""}
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  fontSize: '1.05rem',
+                  py: 0.5,
+                },
+              }}
+            />
+          </Box>
+          <Button 
+            type="submit" 
+            variant="contained" 
             fullWidth
-            label="🔍 Search (Student ID or Name)"
-            placeholder="e.g. 123456789 or John"
-            {...searchForm.register("query", {
-              required: "Enter a search term",
-            })}
-            error={Boolean(searchForm.formState.errors.query)}
-            helperText={searchForm.formState.errors.query?.message || ""}
-          />
-          <Button type="submit" variant="contained" fullWidth>
+            size="large"
+            sx={{ 
+              textTransform: 'none', 
+              fontWeight: 600,
+              minHeight: '48px',
+            }}
+          >
             Search
           </Button>
-          <Button variant="outlined" color="inherit" onClick={resetSearch} fullWidth>
+          <Button 
+            variant="outlined" 
+            color="inherit" 
+            onClick={resetSearch} 
+            fullWidth
+            size="large"
+            sx={{ 
+              textTransform: 'none',
+              minHeight: '48px',
+            }}
+          >
             Show all
           </Button>
         </Stack>
@@ -286,11 +328,34 @@ try {
         )}
       </Paper>
 
+      {/* ADD FORM TOGGLE */}
+      <Box mb={3}>
+        <Button
+          variant="contained"
+          size="large"
+          onClick={() => setShowAddForm(!showAddForm)}
+          fullWidth
+          sx={{
+            py: 1.5,
+            fontSize: '1.1rem',
+            fontWeight: 600,
+            textTransform: 'none',
+            backgroundColor: showAddForm ? '#d32f2f' : undefined,
+            '&:hover': {
+              backgroundColor: showAddForm ? '#b71c1c' : undefined,
+            }
+          }}
+        >
+          {showAddForm ? "❌ Close Form" : "➕ Add New Student"}
+        </Button>
+      </Box>
+
       {/* Add Form */}
-      <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
-        <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
-          ➕ Add Student
-        </Typography>
+      {showAddForm && (
+        <Paper sx={{ p: { xs: 2, sm: 3 }, mb: 3 }}>
+          <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: "1.1rem", sm: "1.25rem" } }}>
+            Add Student
+          </Typography>
         <Stack component="form" spacing={2.5} onSubmit={taskForm.handleSubmit(handleAdd)}>
           <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
             {[
@@ -307,14 +372,14 @@ try {
               {
                 label: "First name *",
                 name: "firstName" as const,
-                placeholder: "e.g. John",
+                placeholder: "e.g. Jack",
                 rules: { required: "First name is required" },
                 errorKey: taskForm.formState.errors.firstName,
               },
               {
                 label: "Last name *",
                 name: "lastName" as const,
-                placeholder: "e.g. Smith",
+                placeholder: "e.g. Sparrow",
                 rules: { required: "Last name is required" },
                 errorKey: taskForm.formState.errors.lastName,
               },
@@ -399,10 +464,11 @@ try {
             />
           </Stack>
           <Button type="submit" variant="contained" size="large" fullWidth>
-            ➕ ADD STUDENT
+            ADD STUDENT
           </Button>
         </Stack>
       </Paper>
+      )}
 
       {/* List */}
       {tasks.length === 0 ? (
@@ -542,7 +608,7 @@ try {
                   <>
                     <Box width="100%">
                       <Typography variant="h6" color="primary" fontWeight="bold">
-                        {task.firstName} {task.lastName} (ID: {task.codeNumber})
+                      Fullname: {task.firstName} {task.lastName}  ID: {task.codeNumber}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
                         Role: {task.title || "-"} | Status: {task.status}
@@ -574,6 +640,7 @@ try {
           })}
         </List>
       )}
+
 
       <Snackbar
         open={snackbar.open}

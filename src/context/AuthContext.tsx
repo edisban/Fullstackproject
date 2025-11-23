@@ -92,14 +92,19 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
 
   const login = useCallback(
     (newToken: string) => {
-      const payload = decodeToken(newToken);
-      if (!payload || isTokenExpired(payload)) {
-        throw new Error("Invalid or expired token");
+      try {
+        const payload = decodeToken(newToken);
+        if (!payload || isTokenExpired(payload)) {
+          throw new Error("Invalid or expired token");
+        }
+        const username = getUsernameFromPayload(payload);
+        persistToken(newToken);
+        setAuthState({ token: newToken, user: username ? { username } : null });
+        scheduleLogout(getExpirationMillis(payload));
+      } catch (error) {
+        clearStoredToken();
+        throw error;
       }
-      const username = getUsernameFromPayload(payload);
-      persistToken(newToken);
-      setAuthState({ token: newToken, user: username ? { username } : null });
-      scheduleLogout(getExpirationMillis(payload));
     },
     [scheduleLogout]
   );

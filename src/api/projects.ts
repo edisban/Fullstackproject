@@ -1,46 +1,50 @@
-import api from "./axiosInstance";
+import axiosInstance from "./axiosInstance";
 
 export interface Project {
-  id?: number;
+  id: number;
   name: string;
   description: string;
-  startDate?: string;
+  startDate: string;
+  createdBy?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
-// Get all projects
+export interface ProjectRequest {
+  name: string;
+  description: string;
+  startDate: string;
+}
+
+interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+  timestamp: string;
+}
+
+const PROJECTS_ENDPOINT = "/projects";
+
 export const getProjects = async (): Promise<Project[]> => {
-  const response = await api.get("/projects");
-  return response.data;
+  const response = await axiosInstance.get<ApiResponse<Project[]>>(PROJECTS_ENDPOINT);
+  return response.data.data;
 };
 
-// Get one project by ID
 export const getProjectById = async (id: number): Promise<Project> => {
-  const response = await api.get(`/projects/${id}`);
-  return response.data;
+  const response = await axiosInstance.get<ApiResponse<Project>>(`${PROJECTS_ENDPOINT}/${id}`);
+  return response.data.data;
 };
 
-// Create project
-export const createProject = async (projectData: Project): Promise<Project> => {
-  const payload = {
-    name: projectData.name,
-    description: projectData.description,
-    startDate: projectData.startDate || new Date().toISOString().split("T")[0],
-  };
-  const response = await api.post("/projects", payload);
-  return response.data;
+export const createProject = async (project: ProjectRequest): Promise<Project> => {
+  const response = await axiosInstance.post<ApiResponse<Project>>(PROJECTS_ENDPOINT, project);
+  return response.data.data;
 };
 
-// Update project
-export const updateProject = async (
-  id: number,
-  projectData: Partial<Project>
-): Promise<Project> => {
-  const response = await api.put(`/projects/${id}`, projectData);
-  return response.data;
+export const updateProject = async (id: number, project: ProjectRequest): Promise<Project> => {
+  const response = await axiosInstance.put<ApiResponse<Project>>(`${PROJECTS_ENDPOINT}/${id}`, project);
+  return response.data.data;
 };
 
-// Delete project
 export const deleteProject = async (id: number): Promise<void> => {
-  await api.delete(`/projects/${id}`);
+  await axiosInstance.delete(`${PROJECTS_ENDPOINT}/${id}`);
 };
