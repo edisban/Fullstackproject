@@ -41,15 +41,6 @@ Configure Environment Variables
 Set the following environment variables before running the application:
 
 
-```bash
-# Linux/Mac
-export DB_URL='jdbc:postgresql://localhost:5432/Project_db'
-export DB_USERNAME='postgres'
-export DB_PASSWORD='your_postgres_password'
-export JWT_SECRET='your-secret-key-here-make-it-long-and-secure'
-export APP_AUTH_DEFAULT_ADMIN_USERNAME='admin'
-export APP_AUTH_DEFAULT_ADMIN_PASSWORD='123456'
-```
 
 ### 4. Run the Application
 
