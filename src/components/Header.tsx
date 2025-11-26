@@ -1,3 +1,7 @@
+/**
+ * Application header with navigation and logout functionality.
+ * Responsive design with mobile drawer menu.
+ */
 import React, { useContext, useState, useCallback, memo } from "react";
 import {
   AppBar,
@@ -18,6 +22,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 const Header: React.FC = memo(() => {
   const { token, user, logout } = useContext(AuthContext);
@@ -25,18 +30,20 @@ const Header: React.FC = memo(() => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   const handleLogout = useCallback(() => {
     setDrawerOpen(false);
-    
-    sessionStorage.setItem("intentionalLogout", "true");
-    
+    setLogoutConfirm(true);
+  }, []);
+
+  const confirmLogout = useCallback(() => {
+    setLogoutConfirm(false);
     logout();
-    
-    navigate("/", {
-      replace: true,
-      state: null,
-    });
+    // Use a small delay to ensure logout completes before navigation
+    setTimeout(() => {
+      navigate("/", { replace: true, state: { fromLogout: true } });
+    }, 0);
   }, [navigate, logout]);
 
   const handleNavClick = useCallback((path: string) => {
@@ -130,7 +137,7 @@ const Header: React.FC = memo(() => {
       >
         <Box sx={{ width: 250, pt: 2 }} role="presentation">
           <Box sx={{ display: "flex", justifyContent: "flex-end", px: 1 }}>
-            <IconButton onClick={handleDrawerClose}>
+            <IconButton onClick={handleDrawerClose} aria-label="close menu">
               <CloseIcon sx={{ color: "white" }} />
             </IconButton>
           </Box>
@@ -170,6 +177,17 @@ const Header: React.FC = memo(() => {
           )}
         </Box>
       </Drawer>
+
+      <ConfirmDialog
+        open={logoutConfirm}
+        title="Logout"
+        message="Are you sure you want to logout?"
+        onConfirm={confirmLogout}
+        onCancel={() => setLogoutConfirm(false)}
+        confirmText="Logout"
+        cancelText="Cancel"
+        confirmColor="primary"
+      />
     </AppBar>
   );
 });

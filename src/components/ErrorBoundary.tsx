@@ -1,3 +1,7 @@
+/**
+ * React error boundary component to catch and display runtime errors.
+ * Shows user-friendly error message with reload option instead of crashing app.
+ */
 import React, { Component, ReactNode } from "react";
 import { Box, Typography, Button, Paper } from "@mui/material";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";

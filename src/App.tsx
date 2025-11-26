@@ -1,3 +1,7 @@
+/**
+ * Main application component with routing configuration.
+ * Implements lazy loading for Dashboard and StudentsPage with protected routes.
+ */
 import React, { lazy, Suspense } from "react";
 import {
   Route,
@@ -5,25 +9,15 @@ import {
   createBrowserRouter,
   createRoutesFromElements,
 } from "react-router-dom";
-import { CssBaseline, Box, CircularProgress } from "@mui/material";
+import { CssBaseline } from "@mui/material";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
+import Skeleton from "./components/Skeleton";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const TasksPage = lazy(() => import("./pages/TasksPage"));
-
-const LoadingFallback = () => (
-  <Box
-    display="flex"
-    justifyContent="center"
-    alignItems="center"
-    minHeight="400px"
-  >
-    <CircularProgress />
-  </Box>
-);
+const StudentsPage = lazy(() => import("./pages/StudentsPage"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -33,18 +27,18 @@ const router = createBrowserRouter(
         path="dashboard"
         element={
           <ProtectedRoute>
-            <Suspense fallback={<LoadingFallback />}>
+            <Suspense fallback={<Skeleton />}>
               <Dashboard />
             </Suspense>
           </ProtectedRoute>
         }
       />
       <Route
-        path="tasks/:projectId"
+        path="students/:projectId"
         element={
           <ProtectedRoute>
-            <Suspense fallback={<LoadingFallback />}>
-              <TasksPage />
+            <Suspense fallback={<Skeleton />}>
+              <StudentsPage />
             </Suspense>
           </ProtectedRoute>
         }

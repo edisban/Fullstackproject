@@ -1,10 +1,13 @@
+/**
+ * Project API service - CRUD operations for projects.
+ * All endpoints return standardized ApiResponse format.
+ */
 import axiosInstance from "./axiosInstance";
 
 export interface Project {
   id: number;
   name: string;
   description: string;
-  startDate: string;
   createdBy?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -13,7 +16,6 @@ export interface Project {
 export interface ProjectRequest {
   name: string;
   description: string;
-  startDate: string;
 }
 
 interface ApiResponse<T> {

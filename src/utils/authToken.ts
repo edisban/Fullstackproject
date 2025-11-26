@@ -1,3 +1,7 @@
+/**
+ * JWT token utility functions: decode, validate, store, and retrieve.
+ * Handles localStorage persistence and token expiration checks.
+ */
 import { jwtDecode } from "jwt-decode";
 
 const TOKEN_STORAGE_KEY = "token";

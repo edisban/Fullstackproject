@@ -1,3 +1,7 @@
+/**
+ * Main layout wrapper with header, footer, and content area.
+ * Used for all pages via React Router Outlet.
+ */
 import React from "react";
 import { Container, Box } from "@mui/material";
 import Header from "./Header";

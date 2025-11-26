@@ -1,3 +1,7 @@
+/**
+ * Error type definitions and helper function for API error handling.
+ * Extracts user-friendly messages from various error response formats.
+ */
 export interface ApiErrorResponse {
   message?: string;
   error?: string;

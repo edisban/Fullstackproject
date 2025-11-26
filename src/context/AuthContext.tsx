@@ -1,3 +1,8 @@
+/**
+ * Authentication context provider with JWT token management.
+ * Handles login, logout, token persistence, and auto-refresh timer.
+ * Provides user state to entire application.
+ */
 import React, {
   createContext,
   useState,

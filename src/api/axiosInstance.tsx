@@ -1,3 +1,7 @@
+/**
+ * Configured Axios instance with JWT interceptors.
+ * Automatically attaches token to requests and handles 401 (logout on auth failure).
+ */
 import axios from "axios";
 import { clearStoredToken, getStoredToken } from "@/utils/authToken";
 

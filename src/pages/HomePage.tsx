@@ -1,3 +1,7 @@
+/**
+ * Login page with JWT authentication.
+ * Handles user login, auto-redirects if already authenticated, and displays error/success messages.
+ */
 import React, { useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -15,6 +19,7 @@ import {
 } from "@mui/material";
 import axiosInstance from "@/api/axiosInstance";
 import { AuthContext } from "@/context/AuthContext";
+import ConfirmDialog from "@/components/ConfirmDialog";
 
 type LoginFormValues = {
   username: string;
@@ -28,27 +33,39 @@ const HomePage: React.FC = () => {
 
   const [serverError, setServerError] = useState<string>("");
   const [showWarning, setShowWarning] = useState(false);
+  const [justLoggedOut, setJustLoggedOut] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
+  // ------------------------- REDIRECT + WARNINGS HANDLING -------------------------
   useEffect(() => {
-    const intentionalLogout = sessionStorage.getItem("intentionalLogout") === "true";
-    
-    if (intentionalLogout) {
-      sessionStorage.removeItem("intentionalLogout");
-      return;
+    const fromLogout = location.state?.fromLogout === true;
+
+    if (fromLogout) {
+      setJustLoggedOut(true);
+      setShowWarning(false);
+      window.history.replaceState({}, document.title);
+
+      const logoutTimer = setTimeout(() => setJustLoggedOut(false), 500);
+      return () => clearTimeout(logoutTimer);
     }
 
-    const wasRedirectedFromProtectedRoute = 
-      location.state?.from?.pathname === "/dashboard" ||
-      location.state?.from?.pathname?.startsWith("/tasks/");
+    if (justLoggedOut) return;
 
-    if (wasRedirectedFromProtectedRoute && !isAuthenticated) {
+    const wasRedirectedFromProtected =
+      location.state?.from?.pathname === "/dashboard" ||
+      location.state?.from?.pathname?.startsWith("/students/");
+
+    if (wasRedirectedFromProtected) {
       window.history.replaceState({}, document.title);
       setShowWarning(true);
       const timer = setTimeout(() => setShowWarning(false), 5000);
       return () => clearTimeout(timer);
+    } else {
+      setShowWarning(false);
     }
-  }, []);
+  }, [location.state, justLoggedOut]);
 
+  // ------------------------------ FORM ------------------------------
   const {
     register,
     handleSubmit,
@@ -70,7 +87,7 @@ const HomePage: React.FC = () => {
 
       if (!token) {
         setServerError("No token returned by the server.");
-        setTimeout(() => setServerError(""), 4000);
+        setTimeout(() => setServerError(""), 5000);
         return;
       }
 
@@ -88,12 +105,12 @@ const HomePage: React.FC = () => {
         setServerError(getErrorMessage(error, "Login failed. Please try again."));
       }
 
-      setTimeout(() => setServerError(""), 4000);
-
+      setTimeout(() => setServerError(""), 5000);
       setShowWarning(false);
     }
   };
 
+  // ------------------------------ IF ALREADY LOGGED IN ------------------------------
   if (isAuthenticated) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -117,52 +134,40 @@ const HomePage: React.FC = () => {
               You're already logged in
             </Typography>
 
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              justifyContent="center"
-            >
-              <Button
-                variant="contained"
-                size="large"
-                onClick={() => navigate("/dashboard")}
-                sx={{
-                  px: 4,
-                  py: 1.5,
-                  fontSize: "1.1rem",
-                  textTransform: "none",
-                  fontWeight: 600,
-                }}
-              >
+            <Stack direction={{ xs: "column", sm: "row" }} spacing={2} justifyContent="center">
+              <Button variant="contained" size="large" onClick={() => navigate("/dashboard")} sx={{ px: 4 }}>
                 Go to Dashboard →
               </Button>
 
-              <Button
-                variant="outlined"
-                size="large"
-                onClick={() => {
-                  logout();
-                  setShowWarning(false);
-                  window.history.replaceState({}, document.title);
-                  navigate("/", { replace: true, state: { fromLogout: true } });
-                }}
-                sx={{
-                  px: 4,
-                  py: 1.5,
-                  fontSize: "1.1rem",
-                  textTransform: "none",
-                  fontWeight: 600,
-                }}
-              >
+              <Button variant="outlined" size="large" onClick={() => setLogoutConfirm(true)} sx={{ px: 4 }}>
                 Logout
               </Button>
             </Stack>
           </Box>
         </Fade>
+
+        {/* Logout Confirmation */}
+        <ConfirmDialog
+          open={logoutConfirm}
+          title="Logout"
+          message="Are you sure you want to logout?"
+          onConfirm={() => {
+            setLogoutConfirm(false);
+            logout();
+            setShowWarning(false);
+            window.history.replaceState({}, document.title);
+            navigate("/", { replace: true, state: { fromLogout: true } });
+          }}
+          onCancel={() => setLogoutConfirm(false)}
+          confirmText="Logout"
+          cancelText="Cancel"
+          confirmColor="primary"
+        />
       </Container>
     );
   }
 
+  // ------------------------------ LOGIN FORM UI ------------------------------
   return (
     <Box
       sx={{
@@ -177,7 +182,7 @@ const HomePage: React.FC = () => {
         gap: 3,
       }}
     >
-      {/* TOP WARNING OR ERROR */}
+      {/* TOP WARNINGS */}
       <Box sx={{ minHeight: "64px", mb: 2 }}>
         <Fade in={showWarning} timeout={{ enter: 400, exit: 500 }}>
           <Alert
@@ -210,6 +215,7 @@ const HomePage: React.FC = () => {
         </Fade>
       </Box>
 
+      {/* FORM */}
       <Container maxWidth="sm">
         <Fade in timeout={800}>
           <Paper
@@ -217,66 +223,86 @@ const HomePage: React.FC = () => {
             sx={{
               p: { xs: 3, sm: 4 },
               borderRadius: 4,
-              background:
-                "linear-gradient(145deg, rgba(30, 58, 54, 0.8) 0%, rgba(15, 31, 28, 0.9) 100%)",
-              backdropFilter: "blur(10px)",
-              border: "1px solid rgba(143, 178, 150, 0.2)",
-              boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3)",
+              background: "rgba(255, 255, 255, 0.06)",
+              backdropFilter: "blur(18px) saturate(180%)",
+              border: "1px solid rgba(255, 255, 255, 0.25)",
+              boxShadow: "0 20px 80px rgba(0,0,0,0.40)",
             }}
           >
-            <Typography variant="h4" fontWeight="bold" gutterBottom sx={{ mb: 1 }}>
-              🔐 Login
+            <Typography
+              variant="h4"
+              fontWeight="bold"
+              gutterBottom
+              sx={{
+                mb: 3,
+                textAlign: "center",
+                color: "#d6f5e1",
+                letterSpacing: "0.5px",
+              }}
+            >
+              Log In
             </Typography>
 
-            <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
-              Enter your credentials to access your dashboard
-            </Typography>
-
-            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate>
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate autoComplete="on">
               <Stack spacing={3}>
+                {/* USERNAME */}
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: "#e9f7ef" }}>
                     Username
                   </Typography>
                   <TextField
                     fullWidth
+                    id="username"
                     placeholder="Enter your username"
+                    aria-label="Username"
                     {...register("username", { required: "Username is required" })}
                     error={!!errors.username}
                     helperText={errors.username?.message || " "}
-                    FormHelperTextProps={{ sx: { minHeight: "22px", height: "22px" } }}
+                    FormHelperTextProps={{ sx: { minHeight: "22px" } }}
+                    inputProps={{ autoComplete: "username" }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
-                        fontSize: "1rem",
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        borderRadius: "12px",
+                        background: "rgba(255,255,255,0.08)",
+                        "& fieldset": { border: "1px solid rgba(255,255,255,0.15)" },
+                        "&:hover fieldset": { borderColor: "rgba(255,255,255,0.35)" },
+                        "&.Mui-focused fieldset": { borderColor: "#8fb296" },
+                        "& input": { background: "transparent !important", color: "#d9f7e8" },
                       },
                     }}
                   />
                 </Box>
 
+                {/* PASSWORD */}
                 <Box>
-                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1 }}>
+                  <Typography variant="body2" fontWeight={600} sx={{ mb: 1, color: "#e9f7ef" }}>
                     Password
                   </Typography>
                   <TextField
                     fullWidth
+                    id="password"
                     type="password"
                     placeholder="Enter your password"
-                    {...register("password", {
-                      required: "Password is required",
-                    })}
+                    aria-label="Password"
+                    {...register("password", { required: "Password is required" })}
                     error={!!errors.password}
                     helperText={errors.password?.message || " "}
-                    FormHelperTextProps={{ sx: { minHeight: "22px", height: "22px" } }}
+                    FormHelperTextProps={{ sx: { minHeight: "22px" } }}
+                    inputProps={{ autoComplete: "new-password" }}
                     sx={{
                       "& .MuiOutlinedInput-root": {
-                        fontSize: "1rem",
-                        backgroundColor: "rgba(255, 255, 255, 0.9)",
+                        borderRadius: "12px",
+                        background: "rgba(255,255,255,0.08)",
+                        "& fieldset": { border: "1px solid rgba(255,255,255,0.15)" },
+                        "&:hover fieldset": { borderColor: "rgba(255,255,255,0.35)" },
+                        "&.Mui-focused fieldset": { borderColor: "#8fb296" },
+                        "& input": { background: "transparent !important", color: "#d9f7e8" },
                       },
                     }}
                   />
                 </Box>
 
+                {/* SUBMIT */}
                 <Button
                   type="submit"
                   variant="contained"
@@ -284,23 +310,12 @@ const HomePage: React.FC = () => {
                   fullWidth
                   disabled={isSubmitting}
                   sx={{
-                    py: 1.5,
+                    py: 1.75,
                     fontSize: "1.1rem",
                     fontWeight: 600,
-                    textTransform: "none",
-                    background:
-                      "linear-gradient(135deg, #5a8d82 0%, #476e65 100%)",
-                    boxShadow: "0 8px 24px rgba(90, 141, 130, 0.4)",
-                    "&:hover": {
-                      background:
-                        "linear-gradient(135deg, #476e65 0%, #3a5b54 100%)",
-                      boxShadow: "0 12px 32px rgba(90, 141, 130, 0.5)",
-                      transform: "translateY(-2px)",
-                    },
-                    transition: "all 0.2s ease",
                   }}
                 >
-                  {isSubmitting ? "Logging in..." : "Login →"}
+                  {isSubmitting ? "Logging in..." : "Log In"}
                 </Button>
               </Stack>
             </Box>
