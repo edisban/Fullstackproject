@@ -11,13 +11,12 @@ import { useForm } from "react-hook-form";
 import { Student } from "@/api/students";
 import { getProjectById, type Project } from "@/api/projects";
 import { useStudents } from "@/hooks/useStudents";
-import { useSnackbar } from "@/hooks/useSnackbar";
+import { useCrudOperation } from "@/hooks/useCrudOperation";
 import StudentSearchBar from "@/components/StudentSearchBar";
 import StudentForm from "@/components/StudentForm";
 import StudentListItem from "@/components/StudentListItem";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
-import NotificationSnackbar from "@/components/NotificationSnackbar";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { normalizeDateInput, getTodayDate } from "@/utils/dateUtils";
 
@@ -48,7 +47,7 @@ const StudentsPage: React.FC = () => {
   const numericProjectId = Number(projectId);
 
   const { students, loading, fetchStudents, handleCreateStudent, handleUpdateStudent, handleDeleteStudent, handleSearchStudents } = useStudents(numericProjectId);
-  const { open, message, severity, showSnackbar, handleClose } = useSnackbar();
+  const { executeCrudOperation } = useCrudOperation();
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [searchMessage, setSearchMessage] = useState<string>("");
@@ -93,28 +92,32 @@ const StudentsPage: React.FC = () => {
   }, [editingStudent, editStudentForm, numericProjectId]);
 
   const onAddStudent = useCallback(async (values: StudentFormValues) => {
-    try {
-      const payload = { ...values, projectId: numericProjectId };
-      await handleCreateStudent(payload);
-      studentForm.reset(buildStudentDefaults(numericProjectId));
-      setShowAddForm(false);
-      showSnackbar("Student added successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to create student"), "error");
-    }
-  }, [numericProjectId, studentForm, handleCreateStudent, showSnackbar]);
+    const payload = { ...values, projectId: numericProjectId };
+    await executeCrudOperation(
+      () => handleCreateStudent(payload),
+      {
+        successMessage: "Student added successfully!",
+        errorMessage: "Failed to create student",
+        onSuccess: () => {
+          studentForm.reset(buildStudentDefaults(numericProjectId));
+          setShowAddForm(false);
+        }
+      }
+    );
+  }, [numericProjectId, studentForm, handleCreateStudent, executeCrudOperation]);
 
   const onUpdateStudent = useCallback(async (values: StudentFormValues) => {
     if (!editingStudent?.id) return;
-    try {
-      const payload = { ...values, projectId: numericProjectId };
-      await handleUpdateStudent(editingStudent.id, payload);
-      setEditingStudent(null);
-      showSnackbar("Student updated successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to update student"), "error");
-    }
-  }, [editingStudent, numericProjectId, handleUpdateStudent, showSnackbar]);
+    const payload = { ...values, projectId: numericProjectId };
+    await executeCrudOperation(
+      () => handleUpdateStudent(editingStudent.id, payload),
+      {
+        successMessage: "Student updated successfully!",
+        errorMessage: "Failed to update student",
+        onSuccess: () => setEditingStudent(null)
+      }
+    );
+  }, [editingStudent, numericProjectId, handleUpdateStudent, executeCrudOperation]);
 
   const onDeleteStudent = useCallback((id: number) => {
     setDeleteConfirm({ open: true, studentId: id });
@@ -126,16 +129,19 @@ const StudentsPage: React.FC = () => {
     
     if (!id) return;
     
-    try {
-      await handleDeleteStudent(id);
-      if (editingStudent?.id === id) {
-        setEditingStudent(null);
+    await executeCrudOperation(
+      () => handleDeleteStudent(id),
+      {
+        successMessage: "Student deleted successfully!",
+        errorMessage: "Failed to delete student",
+        onSuccess: () => {
+          if (editingStudent?.id === id) {
+            setEditingStudent(null);
+          }
+        }
       }
-      showSnackbar("Student deleted successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to delete student"), "error");
-    }
-  }, [deleteConfirm.studentId, editingStudent, handleDeleteStudent, showSnackbar]);
+    );
+  }, [deleteConfirm.studentId, editingStudent, handleDeleteStudent, executeCrudOperation]);
 
   const onSearch = useCallback(async ({ query }: { query: string }) => {
     const trimmed = query.trim();
@@ -157,12 +163,13 @@ const StudentsPage: React.FC = () => {
     searchForm.reset();
     setSearchMessage("");
     setIsSearchActive(false);
-    try {
-      await fetchStudents();
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to reload students"), "error");
-    }
-  }, [searchForm, fetchStudents, showSnackbar]);
+    await executeCrudOperation(
+      () => fetchStudents(),
+      {
+        errorMessage: "Failed to reload students"
+      }
+    );
+  }, [searchForm, fetchStudents, executeCrudOperation]);
 
   const maxDateOfBirth = useMemo(() => getTodayDate(), []);
 
@@ -283,13 +290,6 @@ const StudentsPage: React.FC = () => {
         confirmText="Delete"
         cancelText="Cancel"
         confirmColor="error"
-      />
-
-      <NotificationSnackbar
-        open={open}
-        message={message}
-        severity={severity}
-        onClose={handleClose}
       />
     </Box>
   );

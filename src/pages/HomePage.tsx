@@ -6,6 +6,7 @@ import React, { useContext, useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { getErrorMessage, type ApiError } from "@/types/errors";
+
 import {
   Box,
   Typography,
@@ -20,6 +21,7 @@ import {
 import axiosInstance from "@/api/axiosInstance";
 import { AuthContext } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useSnackbarContext } from "@/context/SnackbarContext";
 
 type LoginFormValues = {
   username: string;
@@ -30,13 +32,14 @@ const HomePage: React.FC = () => {
   const { isAuthenticated, login, logout } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+  const { showSnackbar } = useSnackbarContext();
 
   const [serverError, setServerError] = useState<string>("");
   const [showWarning, setShowWarning] = useState(false);
   const [justLoggedOut, setJustLoggedOut] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
-  // ------------------------- REDIRECT + WARNINGS HANDLING -------------------------
+  
   useEffect(() => {
     const fromLogout = location.state?.fromLogout === true;
 
@@ -65,7 +68,7 @@ const HomePage: React.FC = () => {
     }
   }, [location.state, justLoggedOut]);
 
-  // ------------------------------ FORM ------------------------------
+  
   const {
     register,
     handleSubmit,
@@ -92,6 +95,7 @@ const HomePage: React.FC = () => {
       }
 
       login(token);
+      showSnackbar("You logged in successfully", "success");
       navigate("/dashboard", { replace: true });
     } catch (err: unknown) {
       const error = err as ApiError;
@@ -110,7 +114,7 @@ const HomePage: React.FC = () => {
     }
   };
 
-  // ------------------------------ IF ALREADY LOGGED IN ------------------------------
+  
   if (isAuthenticated) {
     return (
       <Container maxWidth="lg" sx={{ py: 8 }}>
@@ -127,7 +131,7 @@ const HomePage: React.FC = () => {
                 WebkitTextFillColor: "transparent",
               }}
             >
-              Welcome Back! 👋
+              Welcome Back! 
             </Typography>
 
             <Typography variant="h6" color="text.secondary" mb={4}>
@@ -154,6 +158,7 @@ const HomePage: React.FC = () => {
           onConfirm={() => {
             setLogoutConfirm(false);
             logout();
+            showSnackbar("You are logged out successfully", "success");
             setShowWarning(false);
             window.history.replaceState({}, document.title);
             navigate("/", { replace: true, state: { fromLogout: true } });
@@ -167,7 +172,7 @@ const HomePage: React.FC = () => {
     );
   }
 
-  // ------------------------------ LOGIN FORM UI ------------------------------
+  
   return (
     <Box
       sx={{
@@ -243,7 +248,7 @@ const HomePage: React.FC = () => {
               Log In
             </Typography>
 
-            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate autoComplete="on">
+            <Box component="form" onSubmit={handleSubmit(onSubmit)} noValidate >
               <Stack spacing={3}>
                 {/* USERNAME */}
                 <Box>
@@ -259,7 +264,7 @@ const HomePage: React.FC = () => {
                     error={!!errors.username}
                     helperText={errors.username?.message || " "}
                     FormHelperTextProps={{ sx: { minHeight: "22px" } }}
-                    inputProps={{ autoComplete: "username" }}
+                    
                     sx={{
                       "& .MuiOutlinedInput-root": {
                         borderRadius: "12px",
@@ -288,6 +293,7 @@ const HomePage: React.FC = () => {
                     error={!!errors.password}
                     helperText={errors.password?.message || " "}
                     FormHelperTextProps={{ sx: { minHeight: "22px" } }}
+                    autoComplete="off"
                     inputProps={{ autoComplete: "new-password" }}
                     sx={{
                       "& .MuiOutlinedInput-root": {

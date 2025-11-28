@@ -2,7 +2,7 @@
  * Reusable confirmation dialog component.
  * Provides a Material-UI dialog for confirming destructive actions.
  */
-import React from "react";
+import React, { memo } from "react";
 import {
   Dialog,
   DialogTitle,
@@ -23,7 +23,7 @@ interface ConfirmDialogProps {
   confirmColor?: "error" | "primary" | "secondary" | "success" | "info" | "warning";
 }
 
-const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
+const ConfirmDialog: React.FC<ConfirmDialogProps> = memo(({
   open,
   title,
   message,
@@ -125,6 +125,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       </DialogActions>
     </Dialog>
   );
-};
+});
+
+ConfirmDialog.displayName = "ConfirmDialog";
 
 export default ConfirmDialog;

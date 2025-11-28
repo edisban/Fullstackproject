@@ -23,6 +23,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
+import { useSnackbarContext } from "@/context/SnackbarContext";
 
 const Header: React.FC = memo(() => {
   const { token, user, logout } = useContext(AuthContext);
@@ -31,6 +32,7 @@ const Header: React.FC = memo(() => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const { showSnackbar } = useSnackbarContext();
 
   const handleLogout = useCallback(() => {
     setDrawerOpen(false);
@@ -40,11 +42,12 @@ const Header: React.FC = memo(() => {
   const confirmLogout = useCallback(() => {
     setLogoutConfirm(false);
     logout();
+    showSnackbar("You are logged out successfully", "success");
     // Use a small delay to ensure logout completes before navigation
     setTimeout(() => {
       navigate("/", { replace: true, state: { fromLogout: true } });
     }, 0);
-  }, [navigate, logout]);
+  }, [navigate, logout, showSnackbar]);
 
   const handleNavClick = useCallback((path: string) => {
     navigate(path);

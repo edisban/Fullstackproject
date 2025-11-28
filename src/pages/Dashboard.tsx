@@ -9,12 +9,11 @@ import { Box, Button, Typography, Grid } from "@mui/material";
 import { useForm } from "react-hook-form";
 import { Project } from "@/api/projects";
 import { useProjects } from "@/hooks/useProjects";
-import { useSnackbar } from "@/hooks/useSnackbar";
+import { useCrudOperation } from "@/hooks/useCrudOperation";
 import ProjectCard from "@/components/ProjectCard";
 import ProjectForm from "@/components/ProjectForm";
 import EmptyState from "@/components/EmptyState";
 import Skeleton from "@/components/Skeleton";
-import NotificationSnackbar from "@/components/NotificationSnackbar";
 import ConfirmDialog from "@/components/ConfirmDialog";
 
 type ProjectFormValues = {
@@ -25,7 +24,7 @@ type ProjectFormValues = {
 const Dashboard: React.FC = () => {
   const navigate = useNavigate();
   const { projects, loading, handleCreateProject, handleUpdateProject, handleDeleteProject } = useProjects();
-  const { open, message, severity, showSnackbar, handleClose } = useSnackbar();
+  const { executeCrudOperation } = useCrudOperation();
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; projectId: number | null }>({ open: false, projectId: null });
@@ -48,26 +47,30 @@ const Dashboard: React.FC = () => {
   }, [editingProject, editForm]);
 
   const onCreateProject = useCallback(async (values: ProjectFormValues) => {
-    try {
-      await handleCreateProject(values);
-      createForm.reset();
-      setShowCreateForm(false);
-      showSnackbar("Project created successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to create project"), "error");
-    }
-  }, [handleCreateProject, createForm, showSnackbar]);
+    await executeCrudOperation(
+      () => handleCreateProject(values),
+      {
+        successMessage: "Project created successfully!",
+        errorMessage: "Failed to create project",
+        onSuccess: () => {
+          createForm.reset();
+          setShowCreateForm(false);
+        }
+      }
+    );
+  }, [handleCreateProject, createForm, executeCrudOperation]);
 
   const onEditProject = useCallback(async (values: ProjectFormValues) => {
     if (!editingProject?.id) return;
-    try {
-      await handleUpdateProject(editingProject.id, values);
-      setEditingProject(null);
-      showSnackbar("Project updated successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to update project"), "error");
-    }
-  }, [editingProject, handleUpdateProject, showSnackbar]);
+    await executeCrudOperation(
+      () => handleUpdateProject(editingProject.id, values),
+      {
+        successMessage: "Project updated successfully!",
+        errorMessage: "Failed to update project",
+        onSuccess: () => setEditingProject(null)
+      }
+    );
+  }, [editingProject, handleUpdateProject, executeCrudOperation]);
 
   const onDeleteProject = useCallback((id: number) => {
     setDeleteConfirm({ open: true, projectId: id });
@@ -79,16 +82,19 @@ const Dashboard: React.FC = () => {
     
     if (!id) return;
     
-    try {
-      await handleDeleteProject(id);
-      if (editingProject?.id === id) {
-        setEditingProject(null);
+    await executeCrudOperation(
+      () => handleDeleteProject(id),
+      {
+        successMessage: "Project deleted successfully!",
+        errorMessage: "Failed to delete project",
+        onSuccess: () => {
+          if (editingProject?.id === id) {
+            setEditingProject(null);
+          }
+        }
       }
-      showSnackbar("Project deleted successfully!", "success");
-    } catch (error: unknown) {
-      showSnackbar(getErrorMessage(error, "Failed to delete project"), "error");
-    }
-  }, [deleteConfirm.projectId, editingProject, handleDeleteProject, showSnackbar]);
+    );
+  }, [deleteConfirm.projectId, editingProject, handleDeleteProject, executeCrudOperation]);
 
   if (loading) {
     return <Skeleton />;
@@ -166,13 +172,6 @@ const Dashboard: React.FC = () => {
         confirmText="Delete"
         cancelText="Cancel"
         confirmColor="error"
-      />
-
-      <NotificationSnackbar
-        open={open}
-        message={message}
-        severity={severity}
-        onClose={handleClose}
       />
     </Box>
   );

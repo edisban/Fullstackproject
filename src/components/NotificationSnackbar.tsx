@@ -1,6 +1,6 @@
 /**
  * Reusable notification snackbar for success/error/warning/info messages.
- * Auto-dismisses after 5 seconds with manual close option.
+ * Auto-dismisses after 4 seconds with manual close option.
  */
 import React, { memo } from "react";
 import { Snackbar, Alert } from "@mui/material";
@@ -17,7 +17,7 @@ const NotificationSnackbar: React.FC<NotificationSnackbarProps> = memo(
     return (
       <Snackbar
         open={open}
-        autoHideDuration={5000}
+        autoHideDuration={4000}
         onClose={onClose}
         anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
       >

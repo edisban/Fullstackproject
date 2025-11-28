@@ -15,6 +15,7 @@ import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Skeleton from "./components/Skeleton";
+import { SnackbarProvider } from "./context/SnackbarContext";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const StudentsPage = lazy(() => import("./pages/StudentsPage"));
@@ -55,13 +56,15 @@ const router = createBrowserRouter(
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <CssBaseline />
-      <RouterProvider
-        router={router}
-        future={{
-          v7_startTransition: true,
-        }}
-      />
+      <SnackbarProvider>
+        <CssBaseline />
+        <RouterProvider
+          router={router}
+          future={{
+            v7_startTransition: true,
+          }}
+        />
+      </SnackbarProvider>
     </ErrorBoundary>
   );
 };
