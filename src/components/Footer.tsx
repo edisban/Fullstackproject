@@ -1,7 +1,4 @@
-/**
- * Application footer with copyright and branding.
- * Uses theme gradient and responsive typography.
- */
+
 import React, { memo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTheme } from "@mui/material/styles";

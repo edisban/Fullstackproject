@@ -1,7 +1,4 @@
-/**
- * Layout component that wraps all pages with Header and Footer.
- * Provides consistent structure across the application.
- */
+
 import React from "react";
 import { Outlet } from "react-router-dom";
 import { Box } from "@mui/material";

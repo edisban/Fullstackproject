@@ -1,7 +1,4 @@
-/**
- * Application header with navigation and logout functionality.
- * Responsive design with mobile drawer menu.
- */
+
 import React, { useContext, useState, useCallback, memo } from "react";
 import {
   AppBar,
@@ -43,7 +40,7 @@ const Header: React.FC = memo(() => {
     setLogoutConfirm(false);
     logout();
     showSnackbar("You are logged out successfully", "success");
-    // Use a small delay to ensure logout completes before navigation
+   
     setTimeout(() => {
       navigate("/", { replace: true, state: { fromLogout: true } });
     }, 0);
