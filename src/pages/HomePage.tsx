@@ -35,7 +35,6 @@ const HomePage: React.FC = () => {
   const { showSnackbar } = useSnackbarContext();
 
   const [serverError, setServerError] = useState<string>("");
-  const [showWarning, setShowWarning] = useState(false);
   const [justLoggedOut, setJustLoggedOut] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
 
@@ -45,28 +44,12 @@ const HomePage: React.FC = () => {
 
     if (fromLogout) {
       setJustLoggedOut(true);
-      setShowWarning(false);
       window.history.replaceState({}, document.title);
 
       const logoutTimer = setTimeout(() => setJustLoggedOut(false), 500);
       return () => clearTimeout(logoutTimer);
     }
-
-    if (justLoggedOut) return;
-
-    const wasRedirectedFromProtected =
-      location.state?.from?.pathname === "/dashboard" ||
-      location.state?.from?.pathname?.startsWith("/students/");
-
-    if (wasRedirectedFromProtected) {
-      window.history.replaceState({}, document.title);
-      setShowWarning(true);
-      const timer = setTimeout(() => setShowWarning(false), 5000);
-      return () => clearTimeout(timer);
-    } else {
-      setShowWarning(false);
-    }
-  }, [location.state, justLoggedOut]);
+  }, [location.state]);
 
   
   const {
@@ -110,7 +93,6 @@ const HomePage: React.FC = () => {
       }
 
       setTimeout(() => setServerError(""), 5000);
-      setShowWarning(false);
     }
   };
 
@@ -159,7 +141,6 @@ const HomePage: React.FC = () => {
             setLogoutConfirm(false);
             logout();
             showSnackbar("You are logged out successfully", "success");
-            setShowWarning(false);
             window.history.replaceState({}, document.title);
             navigate("/", { replace: true, state: { fromLogout: true } });
           }}
@@ -187,37 +168,24 @@ const HomePage: React.FC = () => {
         gap: 3,
       }}
     >
-      {/* TOP WARNINGS */}
-      <Box sx={{ minHeight: "64px", mb: 2 }}>
-        <Fade in={showWarning} timeout={{ enter: 400, exit: 500 }}>
-          <Alert
-            severity="warning"
-            sx={{
-              width: "100%",
-              maxWidth: 520,
-              mx: "auto",
-              borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(237, 108, 2, 0.2)",
-            }}
-          >
-            You must login first to access Dashboard.
-          </Alert>
-        </Fade>
-
-        <Fade in={!!serverError} timeout={{ enter: 400, exit: 500 }}>
-          <Alert
-            severity="error"
-            sx={{
-              width: "100%",
-              maxWidth: 520,
-              mx: "auto",
-              borderRadius: 2,
-              boxShadow: "0 4px 12px rgba(211, 47, 47, 0.2)",
-            }}
-          >
-            {serverError}
-          </Alert>
-        </Fade>
+      {/* SERVER ERRORS ONLY */}
+      <Box sx={{ height: "80px", mb: 2, display: "flex", alignItems: "center", justifyContent: "center" }}>
+        {serverError && (
+          <Fade in={!!serverError} timeout={{ enter: 400, exit: 500 }}>
+            <Alert
+              severity="error"
+              sx={{
+                width: "100%",
+                maxWidth: 520,
+                mx: "auto",
+                borderRadius: 2,
+                boxShadow: "0 4px 12px rgba(211, 47, 47, 0.2)",
+              }}
+            >
+              {serverError}
+            </Alert>
+          </Fade>
+        )}
       </Box>
 
       {/* FORM */}

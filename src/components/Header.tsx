@@ -100,28 +100,34 @@ const Header: React.FC = memo(() => {
         </Box>
 
         {isMobile ? (
-          <IconButton
-            color="inherit"
-            edge="end"
-            onClick={handleDrawerOpen}
-            aria-label="menu"
-          >
-            <MenuIcon />
-          </IconButton>
+          <>
+            {token && (
+              <IconButton
+                color="inherit"
+                edge="end"
+                onClick={handleDrawerOpen}
+                aria-label="menu"
+              >
+                <MenuIcon />
+              </IconButton>
+            )}
+          </>
         ) : (
           <Box sx={{ display: "flex", gap: 1 }}>
-            <Button color="inherit" component={Link} to="/">
-              Home
-            </Button>
-
-            <Button color="inherit" component={Link} to="/dashboard">
-              Dashboard
-            </Button>
-
             {token && (
-              <Button color="inherit" onClick={handleLogout }>
-                Logout
-              </Button>
+              <>
+                <Button color="inherit" component={Link} to="/">
+                  Home
+                </Button>
+
+                <Button color="inherit" component={Link} to="/dashboard">
+                  Dashboard
+                </Button>
+
+                <Button color="inherit" onClick={handleLogout }>
+                  Logout
+                </Button>
+              </>
             )}
           </Box>
         )}
@@ -146,20 +152,22 @@ const Header: React.FC = memo(() => {
           </Box>
 
           <List>
-            {navItems.map((item) => (
-              <ListItem key={item.path} disablePadding>
-                <ListItemButton onClick={() => handleNavClick(item.path)}>
-                  <ListItemText primary={item.label} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-
             {token && (
-              <ListItem disablePadding>
-                <ListItemButton onClick={handleLogout}>
-                  <ListItemText primary="Logout" />
-                </ListItemButton>
-              </ListItem>
+              <>
+                {navItems.map((item) => (
+                  <ListItem key={item.path} disablePadding>
+                    <ListItemButton onClick={() => handleNavClick(item.path)}>
+                      <ListItemText primary={item.label} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleLogout}>
+                    <ListItemText primary="Logout" />
+                  </ListItemButton>
+                </ListItem>
+              </>
             )}
           </List>
 

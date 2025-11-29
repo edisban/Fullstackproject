@@ -151,9 +151,14 @@ const StudentsPage: React.FC = () => {
     }
 
     try {
-      await handleSearchStudents(trimmed);
+      const result = await handleSearchStudents(trimmed);
       setIsSearchActive(true);
-      setSearchMessage(`Search completed`);
+      if (result.count === 0) {
+        const isNumeric = /^[0-9]+$/.test(trimmed);
+        setSearchMessage(isNumeric ? `No student found with ID: ${trimmed}` : `No students found matching: ${trimmed}`);
+      } else {
+        setSearchMessage(`Found ${result.count} student${result.count > 1 ? 's' : ''}`);
+      }
     } catch (error: unknown) {
       setSearchMessage("Search failed. Please try again.");
     }

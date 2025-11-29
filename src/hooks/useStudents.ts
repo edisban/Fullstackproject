@@ -107,15 +107,16 @@ export const useStudents = (projectId: number): UseStudentsReturn => {
   );
 
   const handleSearchStudents = useCallback(
-    async (query: string) => {
+    async (query: string): Promise<{ found: boolean; count: number }> => {
       setLoading(true);
       try {
         if (!query.trim()) {
           await fetchStudents();
-          return;
+          return { found: true, count: 0 };
         }
         const data = await searchStudents(query, projectId);
         setStudents(data || []);
+        return { found: true, count: data?.length || 0 };
       } catch (error: unknown) {
         throw new Error(getErrorMessage(error, "Failed to search students"));
       } finally {

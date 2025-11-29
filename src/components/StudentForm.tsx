@@ -48,7 +48,7 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                   minLength: { value: 5, message: "At least 5 characters" },
                   pattern: {
                     value: /^[0-9]+$/,
-                    message: "Only numbers allowed"
+                    message: "Student ID must contain only numbers"
                   }
                 },
                 errorKey: form.formState.errors.codeNumber,
@@ -61,7 +61,7 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                   required: "First name is required",
                   pattern: {
                     value: /^[A-Za-z\s]+$/,
-                    message: "Only letters allowed"
+                    message: "First name must contain only letters"
                   }
                 },
                 errorKey: form.formState.errors.firstName,
@@ -74,7 +74,7 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                   required: "Last name is required",
                   pattern: {
                     value: /^[A-Za-z\s]+$/,
-                    message: "Only letters allowed"
+                    message: "Last name must contain only letters"
                   }
                 },
                 errorKey: form.formState.errors.lastName,
@@ -123,7 +123,7 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                   required: "Job title is required",
                   pattern: {
                     value: /^[A-Za-z\s]+$/,
-                    message: "Only letters allowed"
+                    message: "Job title must contain only letters"
                   }
                 })}
                 error={Boolean(form.formState.errors.title)}
