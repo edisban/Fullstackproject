@@ -13,6 +13,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for project CRUD operations.
+ * All endpoints require JWT authentication except login.
+ */
 @RestController
 @RequestMapping("/api/projects")
 public class ProjectController {
@@ -23,64 +27,39 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
-    // 📌 GET - Επιστρέφει όλα τα projects
+    
     @GetMapping
     public ResponseEntity<ApiResponse<List<Project>>> getAllProjects() {
         List<Project> projects = projectService.getAllProjects();
         return ResponseEntity.ok(ApiResponse.success(projects));
     }
 
-    // 📌 GET - Επιστρέφει project με συγκεκριμένο id
+    
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable @NonNull Long id) {
-        try {
-            Project project = projectService.getProjectById(id);
-            return ResponseEntity.ok(ApiResponse.success(project));
-        } catch (jakarta.persistence.EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("Project not found"));
-        }
+    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable Long id) {
+        Project project = projectService.getProjectById(id);
+        return ResponseEntity.ok(ApiResponse.success(project));
     }
 
-    // 📌 POST - Δημιουργία νέου project
+    
     @PostMapping
     public ResponseEntity<ApiResponse<Project>> createProject(@Valid @RequestBody ProjectRequest request) {
-        try {
-            Project saved = projectService.createProject(request);
-            return ResponseEntity.ok(ApiResponse.success("Project created successfully", saved));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(ex.getMessage()));
-        }
+        Project created = projectService.createProject(request);
+        return ResponseEntity.ok(ApiResponse.success("Project created successfully", created));
     }
 
-    // 📌 PUT - Ενημέρωση project
+    
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Project>> updateProject(
-            @PathVariable @NonNull Long id,
-            @Valid @RequestBody ProjectRequest request) {
-
-        try {
-            Project updated = projectService.updateProject(id, request);
-            return ResponseEntity.ok(ApiResponse.success("Project updated successfully", updated));
-        } catch (jakarta.persistence.EntityNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error(ex.getMessage()));
-        } catch (IllegalArgumentException ex) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(ApiResponse.error(ex.getMessage()));
-        }
+    public ResponseEntity<ApiResponse<Project>> updateProject(@PathVariable @NonNull Long id,
+                                                               @Valid @RequestBody ProjectRequest request) {
+        Project updated = projectService.updateProject(id, request);
+        return ResponseEntity.ok(ApiResponse.success("Project updated successfully", updated));
     }
 
-    // 📌 DELETE - Διαγραφή project
+    
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable @NonNull Long id) {
-        boolean deleted = projectService.deleteProject(id);
-        if (deleted) {
-            return ResponseEntity.ok(ApiResponse.success("Project deleted successfully", null));
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(ApiResponse.error("Project not found"));
-        }
+        projectService.deleteProject(id);
+        return ResponseEntity.ok(ApiResponse.success("Project deleted successfully", null));
     }
 }

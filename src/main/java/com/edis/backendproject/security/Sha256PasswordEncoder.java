@@ -6,11 +6,6 @@ import java.security.NoSuchAlgorithmException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-/**
- * Custom PasswordEncoder that uses SHA-256 hashing.
- * Note: SHA-256 without salt is not recommended for production.
- * Consider migrating to BCrypt for better security.
- */
 public class Sha256PasswordEncoder implements PasswordEncoder {
 
     @Override

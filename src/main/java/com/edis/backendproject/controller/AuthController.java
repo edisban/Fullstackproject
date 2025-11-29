@@ -8,12 +8,12 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +23,7 @@ import com.edis.backendproject.security.JwtTokenProvider;
 
 import jakarta.validation.Valid;
 
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -30,14 +31,11 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-    private final PasswordEncoder passwordEncoder;
 
     public AuthController(AuthenticationManager authenticationManager,
-                          JwtTokenProvider tokenProvider,
-                          PasswordEncoder passwordEncoder) {
+                          JwtTokenProvider tokenProvider) {
         this.authenticationManager = authenticationManager;
         this.tokenProvider = tokenProvider;
-        this.passwordEncoder = passwordEncoder;
     }
 
     @PostMapping("/login")
@@ -50,25 +48,16 @@ public class AuthController {
                     )
             );
 
-            // Generate JWT token
             String token = tokenProvider.generateToken(authentication);
 
-            // JSON response
             Map<String, String> data = new HashMap<>();
             data.put("token", token);
             data.put("username", loginRequest.getUsername());
 
             return ResponseEntity.ok(ApiResponse.success("Login successful", data));
-
-        } catch (AuthenticationException e) {
-            return ResponseEntity.status(401)
+        } catch (AuthenticationException ex) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(ApiResponse.error("Invalid username or password"));
-        } catch (Exception e) {
-            log.error("Error during authentication", e);
-            return ResponseEntity.status(500)
-                    .body(ApiResponse.error("Error during authentication: " + e.getMessage()));
-        }
-    }
         }
     }
 }

@@ -14,6 +14,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 
+/**
+ * Handles JWT token creation, validation, and parsing.
+ * Tokens contain username and expiration, signed with HS256 algorithm.
+ */
 @Component
 public class JwtTokenProvider {
 
@@ -30,6 +34,7 @@ public class JwtTokenProvider {
         }
         return Keys.hmacShaKeyFor(keyBytes);
     }
+
 
     public String generateToken(Authentication authentication) {
         String username = authentication.getName();

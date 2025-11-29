@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Handles project CRUD operations with validation.
+ * Checks for duplicate names, manages transactions.
+ */
 @Service
 @Transactional(readOnly = true)
 public class ProjectService implements IProjectService {
@@ -20,21 +24,17 @@ public class ProjectService implements IProjectService {
         this.projectRepository = projectRepository;
     }
 
-    // 📌 GET - Όλα τα projects
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
-    // 📌 GET - Project by ID
     public Project getProjectById(Long id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
     }
 
-    // 📌 POST - Δημιουργία Project
     @Transactional
     public Project createProject(ProjectRequest request) {
-        // Έλεγχος αν υπάρχει ήδη project με το ίδιο όνομα
         projectRepository.findByName(request.getName()).ifPresent(p -> {
             throw new IllegalArgumentException("Project with this name already exists");
         });
@@ -42,31 +42,32 @@ public class ProjectService implements IProjectService {
         Project project = new Project();
         project.setName(request.getName());
         project.setDescription(request.getDescription());
-        project.setStartDate(request.getStartDate());
 
         return projectRepository.save(project);
     }
 
-    // 📌 PUT - Ενημέρωση Project
     @Transactional
     public Project updateProject(Long id, ProjectRequest request) {
         Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
+        // Check if the new name conflicts with another project
+        if (!project.getName().equals(request.getName())) {
+            projectRepository.findByName(request.getName()).ifPresent(p -> {
+                throw new IllegalArgumentException("Project with this name already exists");
+            });
+        }
+
         project.setName(request.getName());
         project.setDescription(request.getDescription());
-        project.setStartDate(request.getStartDate());
 
         return projectRepository.save(project);
     }
 
-    // 📌 DELETE - Διαγραφή Project
     @Transactional
-    public boolean deleteProject(Long id) {
-        if (!projectRepository.existsById(id)) {
-            return false;
-        }
-        projectRepository.deleteById(id);
-        return true;
+    public void deleteProject(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        projectRepository.delete(project);
     }
 }

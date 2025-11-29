@@ -4,8 +4,10 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -17,8 +19,24 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
+/**
+ * Centralized exception handler for all controllers.
+ * Returns consistent ApiResponse format for validation errors, not found, conflicts, etc.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+	private static final String VALIDATION_FAILED = "Validation failed";
+	private static final String CONSTRAINT_VIOLATION = "Constraint violation";
+	private static final String CODE_NUMBER_TAKEN = "This student ID is already taken";
+	private static final String NAME_COMBINATION_TAKEN = "This full name is already taken";
+	private static final String PROJECT_NAME_TAKEN = "This project name is already taken";
+	private static final String DATA_INTEGRITY_ERROR = "Data integrity constraint violation";
+	private static final String INVALID_CREDENTIALS = "Invalid username or password";
+	private static final String UNEXPECTED_ERROR = "Unexpected error occurred";
+	private static final String STUDENTS_CODE_KEY = "students_code_number_key";
+	private static final String UK_STUDENT_NAME = "uk_student_name";
+	private static final String PROJECTS_NAME_KEY = "projects_name_key";
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ApiResponse<Void>> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
@@ -29,10 +47,17 @@ public class GlobalExceptionHandler {
 					FieldError::getField,
 					FieldError::getDefaultMessage,
 					(existing, replacement) -> replacement,
-					LinkedHashMap<String, String>::new));
+					LinkedHashMap::new));
+
+		// For single field errors, return a simple message instead of validation map
+		if (validationErrors.size() == 1) {
+			String errorMessage = validationErrors.values().iterator().next();
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(ApiResponse.error(errorMessage));
+		}
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ApiResponse.validationError("Validation failed", validationErrors));
+				.body(ApiResponse.validationError(VALIDATION_FAILED, validationErrors));
 	}
 
 	@ExceptionHandler(ConstraintViolationException.class)
@@ -43,10 +68,10 @@ public class GlobalExceptionHandler {
 					violation -> violation.getPropertyPath().toString(),
 					ConstraintViolation::getMessage,
 					(existing, replacement) -> replacement,
-					LinkedHashMap<String, String>::new));
+					LinkedHashMap::new));
 
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ApiResponse.validationError("Constraint violation", violations));
+				.body(ApiResponse.validationError(CONSTRAINT_VIOLATION, violations));
 	}
 
 	@ExceptionHandler(EntityNotFoundException.class)
@@ -61,9 +86,36 @@ public class GlobalExceptionHandler {
 				.body(ApiResponse.error(ex.getMessage()));
 	}
 
+	@ExceptionHandler(AuthenticationException.class)
+	public ResponseEntity<ApiResponse<Void>> handleAuthenticationException(AuthenticationException ex) {
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+				.body(ApiResponse.error(INVALID_CREDENTIALS));
+	}
+
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<ApiResponse<Void>> handleDataIntegrityViolation(DataIntegrityViolationException ex) {
+		String message = ex.getMessage();
+		if (message != null) {
+			if (message.contains(STUDENTS_CODE_KEY)) {
+				return ResponseEntity.status(HttpStatus.CONFLICT)
+						.body(ApiResponse.error(CODE_NUMBER_TAKEN));
+			}
+			if (message.contains(UK_STUDENT_NAME)) {
+				return ResponseEntity.status(HttpStatus.CONFLICT)
+						.body(ApiResponse.error(NAME_COMBINATION_TAKEN));
+			}
+			if (message.contains(PROJECTS_NAME_KEY)) {
+				return ResponseEntity.status(HttpStatus.CONFLICT)
+						.body(ApiResponse.error(PROJECT_NAME_TAKEN));
+			}
+		}
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+				.body(ApiResponse.error(DATA_INTEGRITY_ERROR));
+	}
+
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body(ApiResponse.error("Unexpected error occurred"));
+				.body(ApiResponse.error(UNEXPECTED_ERROR));
 	}
 }

@@ -15,5 +15,5 @@ public interface IProjectService {
 
     Project updateProject(Long id, ProjectRequest request);
 
-    boolean deleteProject(Long id);
+    void deleteProject(Long id);
 }

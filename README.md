@@ -1,86 +1,83 @@
-# Project Manager - Backend
+ CRUD Λειτουργίες
 
-A Spring Boot REST API for managing projects and student tasks with JWT authentication.
-
- Overview
-
-This is a full-stack project management system where administrators can create projects and assign students (tasks) to them. The backend provides a secure RESTful API with JWT authentication, built using Spring Boot and PostgreSQL.
-
- Features
-
-- **Project Management**: Create, read, update, and delete projects
-- **Student/Task Management**: Manage student assignments within projects
-- **JWT Authentication**: Secure API endpoints with token-based authentication
-- **SHA-256 Password Hashing**: User passwords are securely hashed
-- **One-to-Many Relationship**: Projects can have multiple tasks/students
-- **RESTful API**: Clean REST endpoints following best practices
-- **Error Handling**: Structured error responses with proper HTTP status codes
-- **Auto-initialization**: Admin user created automatically on first startup
-
- Tech Stack
-
-- Java
-- Spring Boot
-- PostgreSQL
-- Maven 
-- JWT: JSON Web Tokens for authentication
-- Hibernate/JPA: ORM for database operations
+Η εφαρμογή παρέχει πλήρες CRUD για:
+Projects
+Create / Read / Update / Delete
+Ημερομηνία έναρξης, περιγραφή, timestamps
+Students
+Create / Read / Update / Delete
+Σύνδεση με project (One-to-Many)
+Grade, status, role, κ.λπ.
+Users
 
 
+   Ασφάλεια & Authentication
 
+JWT Authentication
 
+Το API απαιτεί JWT token για όλα τα προστατευμένα endpoints
+Token διάρκειας 24 ωρών
+SHA-256 Password Hashing
+Όλοι οι κωδικοί χρηστών αποθηκεύονται hashed 
+Security Layer
+Custom JwtAuthenticationFilter
+Custom JwtTokenProvider
+Spring Security configuration
 
+   Αρχιτεκτονική
 
+Η εφαρμογή ακολουθεί καθαρή και οργανωμένη δομή:
+Controllers
+Υλοποιούν τα REST endpoints:
+AuthController
+ProjectController
+StudentController
+Services
+Εδώ βρίσκεται όλη η επιχειρησιακή λογική:
+Validations
+Εύρεση / δημιουργία resources
+Διαχείριση students μέσα σε projects
+Ρίψη exceptions
+Έλεγχος ύπαρξης εγγραφών
+Περιλαμβάνει και custom service για το login:
+CustomUserDetailsService (Spring Security)
 
-```sql
-CREATE DATABASE Project_db;
-```
+  Repositories
+Υλοποίηση μέσω Spring Data JPA για πρόσβαση στη βάση:
+ProjectRepository
+StudentRepository
+UserRepository
 
-Configure Environment Variables
+Entities
 
-Set the following environment variables before running the application:
+Αντιστοιχία με PostgreSQL πίνακες:
+Project
+Student
+User
+Με One-to-Many σχέση Project → Students.
+DTOs (Data Transfer Objects)
+Requests για project & student inputs
+API Response wrapper
+Login request για authentication
+Exception Handling
 
+Παγκόσμιος handler επιστρέφει JSON errors για:
 
+Validation errors
+Not found
+Unauthorized
+Conflict (duplicate student ID)
+Expired JWT
+CORS
 
-### 4. Run the Application
+Ρυθμισμένο για frontend (
 
+ Αναζήτηση Φοιτητών
 
-Database Schema
+Η εφαρμογή υποστηρίζει exact match search για:
 
-Projects Table
+Student ID (code number)
+Όνομα
 
-CREATE TABLE projects (
-    id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    start_date DATE NOT NULL,
-    description TEXT,
-    created_at TIMESTAMP NOT NULL
-);
-```
-
-### Tasks Table
-```sql
-CREATE TABLE tasks (
-    id BIGSERIAL PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    code_number VARCHAR(50) UNIQUE NOT NULL,
-    birth_date DATE NOT NULL,
-    grade DOUBLE PRECISION,
-    role VARCHAR(255),
-    status VARCHAR(255) NOT NULL,
-    description TEXT,
-    project_id BIGINT,
-    created_at TIMESTAMP NOT NULL,
-    FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL
-);
-```
-
-Users Table
-```sql
-CREATE TABLE users (
-    id BIGSERIAL PRIMARY KEY,
-    username VARCHAR(255) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL
 
 

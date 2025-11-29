@@ -25,10 +25,10 @@ COPY public.projects (start_date, created_at, id, name, description) FROM stdin;
 
 
 
--- Data for Name: tasks; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: students; Type: TABLE DATA; Schema: public; Owner: postgres
 
 
-COPY public.tasks (date_of_birth, created_at, id, project_id, code_number, status, first_name, last_name, title, description) FROM stdin;
+COPY public.students (date_of_birth, created_at, id, project_id, code_number, status, first_name, last_name, title, description) FROM stdin;
 1992-03-03	2025-11-23 10:48:55.512929	7	4	171717	ACTIVE	jim	carrey	author	
 1995-03-02	2025-11-22 13:13:05.966881	2	1	131313	INACTIVE	jack	sparrow	pirate	
 1994-10-24	2025-11-22 13:12:40.293868	1	1	121212	ACTIVE	edis	bantak	coder	
@@ -56,10 +56,10 @@ SELECT pg_catalog.setval('public.projects_id_seq', 5, true);
 
 
 
--- Name: tasks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
+-- Name: students_id_seq; Type: SEQUENCE SET; Schema: public; Owner: postgres
 
 
-SELECT pg_catalog.setval('public.tasks_id_seq', 9, true);
+SELECT pg_catalog.setval('public.students_id_seq', 9, true);
 
 
 

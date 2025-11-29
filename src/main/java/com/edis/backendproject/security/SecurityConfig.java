@@ -18,6 +18,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.edis.backendproject.service.CustomUserDetailsService;
 
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
@@ -29,6 +30,7 @@ public class SecurityConfig {
         return new JwtAuthenticationFilter(tokenProvider, customUserDetailsService);
     }
 
+ 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http,
                                            JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
@@ -38,15 +40,15 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()  
-                .anyRequest().authenticated()                 
+                .requestMatchers("/api/auth/**").permitAll()
+                .anyRequest().authenticated()
             );
 
-       
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

@@ -1,6 +1,5 @@
 package com.edis.backendproject.model;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -11,6 +10,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+/**
+ * Project entity with one-to-many relationship to students.
+ * Name must be unique. CreatedAt timestamp set automatically on creation.
+ */
 @Entity
 @Table(name = "projects")
 @Data
@@ -28,13 +31,15 @@ public class Project {
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    @Column(name = "start_date")
-    private LocalDate startDate;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
-    private List<Task> tasks;
+    private List<Student> students;
+
+    @PrePersist  // Auto-set timestamp before insert
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 }

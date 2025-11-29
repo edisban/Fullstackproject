@@ -1,48 +1,18 @@
-### Maven ###
-target/
-!.mvn/wrapper/maven-wrapper.jar
-.mvn/wrapper/maven-wrapper.properties
-!**/src/main/**/target/
-!**/src/test/**/target/
+# Τυπική λίστα για Spring Boot / Maven Projects
 
-### Logs ###
-*.log
-*.out
+### Build Artifacts ###
+/target/
 
-### Environment files ###
-.env
-.env.local
-application-*.properties
-application-*.yml
-
-### STS (Spring Tool Suite) ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### IntelliJ IDEA ###
+### IDE files ###
 .idea/
-*.iws
-*.iml
-*.ipr
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
 .vscode/
 
-### OS-specific ###
-.DS_Store
-Thumbs.db
+### Environment and Credentials ###
+.env
+.env.example
+
+# Log files
+*.log
+
+# Backup files
+*~
