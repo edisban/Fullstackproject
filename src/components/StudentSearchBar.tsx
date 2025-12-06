@@ -40,7 +40,7 @@ const StudentSearchBar = memo<StudentSearchBarProps>(
               sx={{
                 "& .MuiOutlinedInput-root": {
                   fontSize: "1.05rem",
-                  py: 0.5,
+                  height: "56px",
                 },
               }}
             />
@@ -53,7 +53,7 @@ const StudentSearchBar = memo<StudentSearchBarProps>(
             sx={{
               textTransform: "none",
               fontWeight: 600,
-              minHeight: "48px",
+              height: "56px",
             }}
           >
             Search
@@ -66,7 +66,7 @@ const StudentSearchBar = memo<StudentSearchBarProps>(
             size="large"
             sx={{
               textTransform: "none",
-              minHeight: "48px",
+              height: "56px",
             }}
           >
             Show all

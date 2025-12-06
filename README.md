@@ -1,186 +1,203 @@
-🟩 Authentication (JWT & Protected Routes)
+📌 Project Manager – Frontend (React + TypeScript)
+🧾 Περιγραφή
 
-Το σύστημα χρησιμοποιεί JWT για την ταυτοποίηση των χρηστών.
-Το token αποθηκεύεται με ασφάλεια στο localStorage και εισάγεται αυτόματα σε όλα τα αιτήματα μέσω Axios interceptor.
-Οι προστατευμένες διαδρομές ελέγχουν την αυθεντικότητα και κάνουν redirect σε μη εξουσιοδοτημένη πρόσβαση.
+Το frontend αποτελεί το γραφικό περιβάλλον της εφαρμογής Project Manager, η οποία επιτρέπει τη διαχείριση έργων και φοιτητών σε πραγματικό χρόνο.
+Η εφαρμογή βασίζεται σε React + TypeScript με σύγχρονη αρχιτεκτονική, Material-UI design system, custom hooks και καθαρό API layer.
 
-🟩 Axios API Layer
+Υποστηρίζει:
 
-Κεντρικό Axios instance για όλα τα αιτήματα.
-Διαχειρίζεται:
+🔐 Αυθεντικοποίηση με JWT
 
-εισαγωγή JWT token
+📁 Πλήρη CRUD διαχείριση projects
 
-χειρισμό σφαλμάτων
+👥 Πλήρη CRUD διαχείριση φοιτητών
 
-αυτόματο logout σε 401
+🔍 Αναζήτηση
 
-unified error messages
+📝 Validation σε όλες τις φόρμες
+
+🎨 Responsive dark theme
+
+🎥 Demo
+
+
+
+Demo Video (Loom):(https://www.loom.com/share/1811989a4f01429786ffa7bc0aff5728)
+
+🛠️ Τεχνολογίες
+
+• React 18
+• TypeScript
+• Vite
+• Material-UI (MUI)
+• React Router
+• Axios
+• React Hook Form
+• Custom Hooks Architecture
+
+🚀 Εγκατάσταση & Εκκίνηση
+1️⃣ Κλωνοποίηση του project
+
+• git clone https://github.com/username/frontend.git
+• Μετακίνηση στον φάκελο: cd frontend
+
+2️⃣ Εγκατάσταση εξαρτήσεων
+
+• npm install
+
+3️⃣ Εκκίνηση development server
+
+• npm run dev
+• Η εφαρμογή τρέχει στο: http://localhost:5176/
+
+🔐 Authentication (JWT & Protected Routes)
+
+Το σύστημα χρησιμοποιεί JWT για την ταυτοποίηση χρηστών.
+
+• Το token αποθηκεύεται στο localStorage
+• Ο Axios interceptor το εισάγει αυτόματα σε όλα τα requests
+• Οι protected routes επιτρέπουν πρόσβαση μόνο σε logged-in χρήστες
+• Σε 401 γίνεται αυτόματο logout & redirect στο login
+
+🌐 Axios API Layer
+
+Υπάρχει κεντρικό axios instance που χειρίζεται:
+
+• εισαγωγή JWT token
+• unified error messages
+• αυτόματο logout σε 401
+• network error detection
 
 Έτσι αποφεύγεται ο επαναλαμβανόμενος κώδικας στα components.
 
-🟩 Projects Module
+📁 Projects Module
 
-Παρέχει CRUD λειτουργίες για projects:
+Το module διαχειρίζεται πλήρως τα projects:
 
-δημιουργία
+• δημιουργία
+• επεξεργασία
+• διαγραφή
+• εμφάνιση όλων των projects
+• empty state όταν δεν υπάρχουν δεδομένα
 
-επεξεργασία
+Components:
 
-διαγραφή
+• ProjectCard – παρουσίαση project
+• ProjectForm – φόρμες δημιουργίας/επεξεργασίας
+• ConfirmDialog – επιβεβαίωση διαγραφής
 
-εμφάνιση όλων των projects
+👥 Students Module
 
-empty state όταν δεν υπάρχουν δεδομένα
+Διαχείριση φοιτητών ανά project:
 
-Κάθε project εμφανίζεται μέσω ProjectCard, ενώ το ProjectForm χειρίζεται όλες τις φόρμες εισαγωγής/επεξεργασίας.
+• προσθήκη νέου φοιτητή
+• επεξεργασία
+• διαγραφή με επιβεβαίωση
+• αναζήτηση με όνομα ή ID
+• empty state σε άδειες λίστες
 
-🟩 Students Module
+Components:
 
-Διαχειρίζεται φοιτητές ανά project:
+• StudentForm – validation & form logic
+• StudentListItem
+• StudentSearchBar
 
-προσθήκη νέου φοιτητή
-
-επεξεργασία
-
-διαγραφή με επιβεβαίωση
-
-αναζήτηση με όνομα ή ID
-
-empty state όταν δεν υπάρχουν φοιτητές
-
-Το StudentForm φροντίζει για validation, ενώ το StudentListItem προβάλλει κάθε φοιτητή ξεχωριστά.
-
-🟩 Custom Hooks (State Management)
-
-Υπάρχουν dedicated hooks για καθαρό και επαναχρησιμοποιήσιμο κώδικα:
+🧠 State Management – Custom Hooks
 
 • useProjects
-
-Διαχειρίζεται όλη τη λογική των projects (fetch, create, update, delete).
+– fetch projects
+– δημιουργία / επεξεργασία / διαγραφή
+– auto-refresh μετά από κάθε ενέργεια
 
 • useStudents
-
-Κεντρική λογική για φοιτητές, μαζί με validation, filtering και error handling.
+– CRUD φοιτητών
+– αναζήτηση
+– server-side error handling
 
 • useSnackbar
+– κεντρικό σύστημα ειδοποιήσεων
 
-Παγκόσμια διαχείριση ειδοποιήσεων (errors & success messages).
+• useCrudOperator
+– Ενιαίο hook για ασφαλείς και σταθερές CRUD ενέργειες
 
-• useFetch
+Πλεονεκτήματα:
 
-Γενικό εργαλείο για παντός τύπου API requests.
+καθαρή αρχιτεκτονική
 
-🟩 React Hook Form & Validation
+επαναχρησιμοποίηση λογικής
 
-Κάθε φόρμα διαθέτει:
+components χωρίς περιττό κώδικα
 
-required fields
+📝 React Hook Form & Validation
 
-pattern rules
+Η εφαρμογή ενσωματώνει ισχυρό validation layer:
 
-real-time error feedback
+• required fields
+• pattern rules
+• real-time error feedback
+• άμεση απόρριψη λανθασμένων δεδομένων
+• μηνύματα λάθους κάτω από κάθε input
 
-αποτροπή αποστολής λανθασμένων δεδομένων
-
-άμεση εμφάνιση errors κάτω από κάθε input
-
-Η εφαρμογή εντοπίζει:
+Εντοπίζει:
 
 κενά πεδία
 
-μη έγκυρο email
-
 μη έγκυρο student ID
 
-αλφαριθμητικούς περιορισμούς
+μη έγκυρους χαρακτήρες
 
 μελλοντικές ημερομηνίες
 
-🟩 Snackbar Notifications
+🔔 Snackbar Notifications
 
 Κεντρικός μηχανισμός ειδοποιήσεων:
 
-εμφανίζει επιτυχίες & σφάλματα
+• εμφανίζει επιτυχίες & σφάλματα
+• auto-dismiss
+• consistent UI
+• non-blocking
 
-auto dismiss
+Χρησιμοποιείται σε όλες τις CRUD λειτουργίες.
 
-consistent UI
+⚠️ Error Handling System
 
-non-blocking (καλύτερο από alert)
+Η εφαρμογή διαχειρίζεται:
 
-Ενσωματωμένο σε όλα τα CRUD operations.
+• backend errors (400, 401, 404, 409, 500)
+• validation errors
+• network errors
+• constraint violations (duplicate project name, unique student ID)
+• fallback UI μέσω ErrorBoundary
 
-🟩 Error Handling System
+Όλα εμφανίζονται με καθαρά και κατανοητά μηνύματα.
 
-Το σύστημα διαχειρίζεται:
-
-backend errors (400, 401, 404, 500)
-
-network errors
-
-validation errors
-
-constraint violations (unique student ID, duplicate project name)
-
-fallback όσο αφορά απρόσμενα React errors μέσω ErrorBoundary
-
-Όλα μεταφέρονται στο χρήστη με καθαρά, κατανοητά μηνύματα.
-
-🟩 Routing Structure
+🔀 Routing Structure
 
 Το React Router διαχειρίζεται:
 
-login page
+• Login page
+• Dashboard (projects)
+• Students page ανά project
+• Protected routes για authenticated users
 
-dashboard (projects)
+Η πλοήγηση γίνεται με useNavigate.
 
-students page ανά project
-
-protected routes για authenticated users
-
-Η πλοήγηση γίνεται προγραμματιστικά με useNavigate.
-
-🟩 Material-UI & Theme
+🎨 Material-UI & Theme
 
 Χρησιμοποιείται custom dark theme:
 
-consistent χρώματα
+• consistent χρώματα
+• ευανάγνωστη typography
+• responsive layout
+• σύγχρονο design και hover states
+• Skeleton Screens: Φιλική εμφάνιση πριν φορτωθεί το περιεχόμενο.
 
-typography ρυθμισμένη για ευανάγνωστο UI
+✨ Accessibility
 
-responsive layout
+Η εφαρμογή ακολουθεί βασικές αρχές προσβασιμότητας:
 
-σύγχρονο design με hover states και animations
-
-🟩 Accessibility
-
-Η εφαρμογή τηρεί βασικές αρχές προσβασιμότητας:
-
-ARIA labels
-
-semantic HTML
-
-keyboard navigation
-
-screen reader-friendly components
-
-σωστό focus management στα dialogs
-
-🟩 Structure & Architecture
-
-Το project είναι οργανωμένο σε:
-
-components (UI)
-
-hooks (logic)
-
-pages (views)
-
-api layer (network calls)
-
-context (authentication)
-
-utils (helper functions)
-
-Έτσι διαχωρίζονται καθαρά η λογική, η κατάσταση και το UI.
+• ARIA labels
+• semantic HTML
+• keyboard navigation
+• screen reader-friendly components
+• σωστό focus management στα dialogs

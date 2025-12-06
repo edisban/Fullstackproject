@@ -56,10 +56,12 @@ const StudentsPage: React.FC = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; studentId: number | null }>({ open: false, studentId: null });
 
   const studentForm = useForm<StudentFormValues>({
+    mode: "all",
     defaultValues: buildStudentDefaults(numericProjectId),
   });
 
   const editStudentForm = useForm<StudentFormValues>({
+    mode: "all",
     defaultValues: buildStudentDefaults(numericProjectId),
   });
 
@@ -215,20 +217,14 @@ const StudentsPage: React.FC = () => {
       />
 
       {/* ADD FORM TOGGLE */}
-      <Box mb={3}>
+      <Box mb={4} display="flex" justifyContent="flex-start">
         <Button
           variant="contained"
           size="large"
           onClick={() => setShowAddForm(!showAddForm)}
           fullWidth
-          sx={{
-            backgroundColor: showAddForm ? '#d32f2f' : undefined,
-            '&:hover': {
-              backgroundColor: showAddForm ? '#b71c1c' : undefined,
-            }
-          }}
         >
-          {showAddForm ? "❌ Close Form" : "➕ Add New Student"}
+          {showAddForm ? "❌ Close" : "➕ New Student"}
         </Button>
       </Box>
 

@@ -32,7 +32,7 @@ interface UseStudentsReturn {
     }
   ) => Promise<void>;
   handleDeleteStudent: (id: number) => Promise<void>;
-  handleSearchStudents: (query: string) => Promise<void>;
+  handleSearchStudents: (query: string) => Promise<{ found: boolean; count: number }>;
 }
 
 export const useStudents = (projectId: number): UseStudentsReturn => {

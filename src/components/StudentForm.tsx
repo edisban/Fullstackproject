@@ -21,11 +21,11 @@ interface StudentFormProps {
   maxDateOfBirth: string;
 }
 
-const StudentForm: React.FC<StudentFormProps> = React.memo(
-  ({ mode, form, onSubmit, onCancel, maxDateOfBirth }) => {
-    const isCreateMode = mode === "create";
+const StudentForm: React.FC<StudentFormProps> = ({ mode, form, onSubmit, onCancel, maxDateOfBirth }) => {
+  const isCreateMode = mode === "create";
+  const { errors } = form.formState;
 
-    return (
+  return (
       <Paper sx={{ p: { xs: 2, sm: 3 }, mb: isCreateMode ? 3 : 0, width: "100%" }}>
         {isCreateMode && (
           <Typography
@@ -90,8 +90,8 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                   aria-label={field.label}
                   fullWidth
                   {...form.register(field.name, field.rules)}
-                  error={Boolean(field.errorKey)}
-                  helperText={field.errorKey?.message}
+                  error={Boolean(errors[field.name])}
+                  helperText={errors[field.name]?.message}
                 />
               </Stack>
             ))}
@@ -126,8 +126,8 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
                     message: "Job title must contain only letters"
                   }
                 })}
-                error={Boolean(form.formState.errors.title)}
-                helperText={form.formState.errors.title?.message}
+                error={Boolean(errors.title)}
+                helperText={errors.title?.message}
               />
             </Stack>
           </Stack>
@@ -163,8 +163,7 @@ const StudentForm: React.FC<StudentFormProps> = React.memo(
         </Stack>
       </Paper>
     );
-  }
-);
+};
 
 StudentForm.displayName = "StudentForm";
 

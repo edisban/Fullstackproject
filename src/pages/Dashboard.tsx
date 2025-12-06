@@ -1,7 +1,4 @@
-/**
- * Projects dashboard with CRUD operations.
- * Displays project cards, create/edit forms, and navigation to student management.
- */
+
 import React, { useEffect, useState, useCallback } from "react";
 import { getErrorMessage } from "@/types/errors";
 import { useNavigate } from "react-router";
@@ -112,19 +109,19 @@ const Dashboard: React.FC = () => {
         📋 Projects Dashboard
       </Typography>
 
-      {/* CREATE FORM TOGGLE */}
-      <Box mb={4}>
+      
+      <Box mb={4} display="flex" justifyContent="flex-start">
         <Button
           variant="contained"
           size="large"
           onClick={() => setShowCreateForm(!showCreateForm)}
           fullWidth
         >
-          {showCreateForm ? "❌ Close Form" : "➕ Create New Project"}
+          {showCreateForm ? "❌ Close" : "➕ New Project"}
         </Button>
       </Box>
 
-      {/* ADD FORM */}
+      
       {showCreateForm && (
         <ProjectForm
           mode="create"
@@ -133,7 +130,7 @@ const Dashboard: React.FC = () => {
         />
       )}
 
-      {/* PROJECTS GRID */}
+      
       {!projects || projects.length === 0 ? (
         <EmptyState 
           icon="📦"
