@@ -56,19 +56,9 @@ public class StudentController {
 
     
     @GetMapping("/search/code")
-    public ResponseEntity<ApiResponse<Student>> searchByCode(
-            @RequestParam(name = "code", required = false) String code,
-            @RequestParam(name = "am", required = false) String am
-    ) {
-        Student student = studentService.searchByCodeOrAm(code, am);
+    public ResponseEntity<ApiResponse<Student>> searchByCode(@RequestParam String code) {
+        Student student = studentService.searchByCode(code);
         return ResponseEntity.ok(ApiResponse.success(student));
-    }
-
-    
-    @GetMapping("/search/name")
-    public ResponseEntity<ApiResponse<List<Student>>> searchByName(@RequestParam String name) {
-        List<Student> students = studentService.searchByName(name);
-        return ResponseEntity.ok(ApiResponse.success(students));
     }
 
     

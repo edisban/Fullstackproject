@@ -13,9 +13,7 @@ public interface IStudentService {
 
     List<Student> getStudentsByProject(Long projectId);
 
-    Student searchByCodeOrAm(String code, String am);
-
-    Student searchByCode(String codeOrAm);
+    Student searchByCode(String code);
 
     List<Student> searchByName(String name);
 

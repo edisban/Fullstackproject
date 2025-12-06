@@ -41,17 +41,12 @@ public class StudentService implements IStudentService {
         return studentRepository.findByProject_Id(projectId);
     }
 
-    public Student searchByCode(String codeOrAm) {
-        return studentRepository.findByCodeNumber(codeOrAm)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-    }
-
-    public Student searchByCodeOrAm(String code, String am) {
-        String searchTerm = (code != null && !code.isEmpty()) ? code : am;
-        if (searchTerm == null || searchTerm.isEmpty()) {
-            throw new IllegalArgumentException("Both code and am cannot be empty");
+    public Student searchByCode(String code) {
+        if (code == null || code.trim().isEmpty()) {
+            throw new IllegalArgumentException("Code cannot be empty");
         }
-        return searchByCode(searchTerm);
+        return studentRepository.findByCodeNumber(code)
+                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
     }
 
     public List<Student> searchByName(String name) {

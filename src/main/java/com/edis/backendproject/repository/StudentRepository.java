@@ -23,7 +23,6 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
     Optional<Student> findByCodeNumber(String codeNumber);
 
     @Query("SELECT s FROM Student s WHERE " +
-           "LOWER(s.codeNumber) = LOWER(:searchTerm) OR " +
            "LOWER(s.firstName) = LOWER(:searchTerm) OR " +
            "LOWER(s.lastName) = LOWER(:searchTerm)")
     List<Student> searchByName(@Param("searchTerm") String searchTerm);
