@@ -23,8 +23,9 @@
 
 
 Demo Video (Loom)   ΛΕΙΤΟΥΡΓΙΕΣ : https://www.loom.com/share/1811989a4f01429786ffa7bc0aff5728
-                    FRONTEND : https://www.loom.com/share/b80c3b3d52484153a7c02bd9c685b96e
-                    BACKEND : 
+                    FRONTEND : https://www.loom.com/share/b80c3b3d52484153a7c02bd9c685b96e 
+                    BACKEND : https://www.loom.com/share/3ba15628885243e7a4d4819d2ff219bf
+                    + από αυτά που θα ήθελα να εφαρμόσω εΙναι σίγουρα το pagination και το role-based access control, sorting, Multi-language Support (i18n) και dark-light mode.
 
 🛠️ Τεχνολογίες
 
