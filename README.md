@@ -22,7 +22,9 @@
 
 
 
-Demo Video (Loom):(https://www.loom.com/share/1811989a4f01429786ffa7bc0aff5728)
+Demo Video (Loom)   ΛΕΙΤΟΥΡΓΙΕΣ : https://www.loom.com/share/1811989a4f01429786ffa7bc0aff5728
+                    FRONTEND : https://www.loom.com/share/b80c3b3d52484153a7c02bd9c685b96e
+                    BACKEND : 
 
 🛠️ Τεχνολογίες
 
