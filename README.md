@@ -39,10 +39,6 @@ Demo Video (Loom)   ΛΕΙΤΟΥΡΓΙΕΣ : https://www.loom.com/share/1811989a
 • Custom Hooks Architecture
 
 🚀 Εγκατάσταση & Εκκίνηση
-1️⃣ Κλωνοποίηση του project
-
-• git clone https://github.com/username/frontend.git
-• Μετακίνηση στον φάκελο: cd frontend
 
 2️⃣ Εγκατάσταση εξαρτήσεων
 
