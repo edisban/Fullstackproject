@@ -5,6 +5,7 @@ import com.edis.backendproject.model.Project;
 import com.edis.backendproject.repository.ProjectRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,14 +16,11 @@ import java.util.List;
  * Checks for duplicate names, manages transactions.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProjectService implements IProjectService {
 
     private final ProjectRepository projectRepository;
-
-    public ProjectService(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
-    }
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();

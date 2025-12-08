@@ -7,6 +7,7 @@ import com.edis.backendproject.repository.ProjectRepository;
 import com.edis.backendproject.repository.StudentRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,16 +18,12 @@ import java.util.List;
  * Supports search by code number and name with various endpoints.
  */
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class StudentService implements IStudentService {
 
     private final StudentRepository studentRepository;
     private final ProjectRepository projectRepository;
-
-    public StudentService(StudentRepository studentRepository, ProjectRepository projectRepository) {
-        this.studentRepository = studentRepository;
-        this.projectRepository = projectRepository;
-    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
@@ -65,14 +62,15 @@ public class StudentService implements IStudentService {
         Project project = projectRepository.findById(request.getProjectId())
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
-        Student student = new Student();
-        student.setCodeNumber(request.getCodeNumber());
-        student.setFirstName(request.getFirstName());
-        student.setLastName(request.getLastName());
-        student.setDateOfBirth(request.getDateOfBirth());
-        student.setTitle(request.getTitle());
-        student.setDescription(request.getDescription());
-        student.setProject(project);
+        Student student = Student.builder()
+                .codeNumber(request.getCodeNumber())
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .dateOfBirth(request.getDateOfBirth())
+                .title(request.getTitle())
+                .description(request.getDescription())
+                .project(project)
+                .build();
 
         return studentRepository.save(student);
     }

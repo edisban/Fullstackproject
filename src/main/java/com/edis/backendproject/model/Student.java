@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 /**
  * Student entity with many-to-one relationship to project.
@@ -21,6 +22,7 @@ import lombok.AllArgsConstructor;
     @UniqueConstraint(name = "uk_student_name", columnNames = {"first_name", "last_name"})
 })
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Student {

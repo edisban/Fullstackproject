@@ -11,18 +11,17 @@ import org.springframework.transaction.annotation.Transactional;
 import com.edis.backendproject.model.User;
 import com.edis.backendproject.repository.UserRepository;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Loads user details from database for Spring Security authentication.
  * Used by AuthenticationManager during login validation.
  */
 @Service
+@RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     @Override
     @Transactional(readOnly = true)
