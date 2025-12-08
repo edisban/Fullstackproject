@@ -12,21 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Handles student CRUD operations and search functionality.
  * Supports search by code number and name with various endpoints.
  */
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class StudentService implements IStudentService {
 
     private final StudentRepository studentRepository;
     private final ProjectRepository projectRepository;
-
-    public StudentService(StudentRepository studentRepository, ProjectRepository projectRepository) {
-        this.studentRepository = studentRepository;
-        this.projectRepository = projectRepository;
-    }
 
     public List<Student> getAllStudents() {
         return studentRepository.findAll();

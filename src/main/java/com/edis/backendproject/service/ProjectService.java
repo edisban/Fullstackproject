@@ -10,19 +10,18 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * Handles project CRUD operations with validation.
  * Checks for duplicate names, manages transactions.
  */
 @Service
 @Transactional(readOnly = true)
+@RequiredArgsConstructor
 public class ProjectService implements IProjectService {
 
     private final ProjectRepository projectRepository;
-
-    public ProjectService(ProjectRepository projectRepository) {
-        this.projectRepository = projectRepository;
-    }
 
     public List<Project> getAllProjects() {
         return projectRepository.findAll();

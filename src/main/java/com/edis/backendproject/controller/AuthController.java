@@ -22,21 +22,17 @@ import org.springframework.web.bind.annotation.RestController;
 import com.edis.backendproject.security.JwtTokenProvider;
 
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
-
-    public AuthController(AuthenticationManager authenticationManager,
-                          JwtTokenProvider tokenProvider) {
-        this.authenticationManager = authenticationManager;
-        this.tokenProvider = tokenProvider;
-    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, String>>> login(@Valid @RequestBody LoginRequest loginRequest) {

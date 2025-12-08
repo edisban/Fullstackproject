@@ -2,10 +2,12 @@ package com.edis.backendproject.security;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
  
 @ConfigurationProperties(prefix = "jwt")
-@Data
+@Getter
+@Setter
 public class JwtProperties {
   
     private String secret;

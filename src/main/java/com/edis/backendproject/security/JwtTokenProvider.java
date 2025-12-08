@@ -13,19 +13,17 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
 
 /**
  * Handles JWT token creation, validation, and parsing.
  * Tokens contain username and expiration, signed with HS256 algorithm.
  */
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
 
     private final JwtProperties jwtProperties;
-
-    public JwtTokenProvider(JwtProperties jwtProperties) {
-        this.jwtProperties = jwtProperties;
-    }
 
     private Key getSigningKey() {
         byte[] keyBytes = jwtProperties.getSecret().getBytes(StandardCharsets.UTF_8);

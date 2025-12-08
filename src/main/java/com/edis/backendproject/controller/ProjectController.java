@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * REST controller for project CRUD operations.
  * All endpoints require JWT authentication except login.
  */
 @RestController
 @RequestMapping("/api/projects")
+@RequiredArgsConstructor
 public class ProjectController {
 
     private final IProjectService projectService;
-
-    public ProjectController(IProjectService projectService) {
-        this.projectService = projectService;
-    }
 
     
     @GetMapping

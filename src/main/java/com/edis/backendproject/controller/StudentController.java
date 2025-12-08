@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import lombok.RequiredArgsConstructor;
+
 /**
  * REST controller for student operations.
  * Supports CRUD, search by code/name, and filtering by project.
  */
 @RestController
 @RequestMapping("/api/students")
+@RequiredArgsConstructor
 public class StudentController {
 
     private final IStudentService studentService;
-
-    public StudentController(IStudentService studentService) {
-        this.studentService = studentService;
-    }
 
     
     @GetMapping
