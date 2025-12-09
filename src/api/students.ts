@@ -62,12 +62,22 @@ export const deleteStudent = async (id: number): Promise<void> => {
 };
 
 export const searchStudents = async (query: string, projectId?: number): Promise<Student[]> => {
-  const params = new URLSearchParams({ query: encodeURIComponent(query) });
+  const params = new URLSearchParams();
+  params.set("query", query);
   if (projectId !== undefined) {
-    params.append('projectId', projectId.toString());
+    params.set("projectId", projectId.toString());
   }
   const response = await axiosInstance.get<ApiResponse<Student[]>>(
     `${STUDENTS_ENDPOINT}/search?${params.toString()}`
+  );
+  return response.data.data;
+};
+
+export const searchStudentByCode = async (code: string): Promise<Student> => {
+  const params = new URLSearchParams();
+  params.set("code", code);
+  const response = await axiosInstance.get<ApiResponse<Student>>(
+    `${STUDENTS_ENDPOINT}/search/code?${params.toString()}`
   );
   return response.data.data;
 };

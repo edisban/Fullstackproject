@@ -22,7 +22,7 @@ const StudentsPage = lazy(() => import("./pages/StudentsPage"));
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<Layout />}>
+    <Route path="/" element={<Layout />} errorElement={<ErrorBoundary />}>
       <Route index element={<HomePage />} />
       <Route
         path="dashboard"
@@ -33,6 +33,7 @@ const router = createBrowserRouter(
             </Suspense>
           </ProtectedRoute>
         }
+        errorElement={<ErrorBoundary />}
       />
       <Route
         path="students/:projectId"
@@ -43,6 +44,7 @@ const router = createBrowserRouter(
             </Suspense>
           </ProtectedRoute>
         }
+        errorElement={<ErrorBoundary />}
       />
     </Route>
   ),

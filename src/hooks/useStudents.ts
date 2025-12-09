@@ -3,7 +3,7 @@
  * Fetches students by project ID and supports search by code/name.
  */
 import { useState, useCallback, useEffect } from "react";
-import { getStudentsByProject, createStudent, updateStudent, deleteStudent, searchStudents, Student } from "@/api/students";
+import { getStudentsByProject, createStudent, updateStudent, deleteStudent, searchStudents, searchStudentByCode, Student } from "@/api/students";
 import { getErrorMessage } from "@/types/errors";
 
 interface UseStudentsReturn {
@@ -114,7 +114,29 @@ export const useStudents = (projectId: number): UseStudentsReturn => {
           await fetchStudents();
           return { found: true, count: 0 };
         }
-        const data = await searchStudents(query, projectId);
+        const trimmed = query.trim();
+        const isNumeric = /^\d+$/.test(trimmed);
+
+        if (isNumeric) {
+          try {
+            const student = await searchStudentByCode(trimmed);
+            if (projectId && student.projectId !== projectId) {
+              setStudents([]);
+              return { found: true, count: 0 };
+            }
+            setStudents([student]);
+            return { found: true, count: 1 };
+          } catch (error: unknown) {
+            const status = (error as any)?.response?.status;
+            if (status === 404) {
+              setStudents([]);
+              return { found: true, count: 0 };
+            }
+            throw error;
+          }
+        }
+
+        const data = await searchStudents(trimmed, projectId);
         setStudents(data || []);
         return { found: true, count: data?.length || 0 };
       } catch (error: unknown) {

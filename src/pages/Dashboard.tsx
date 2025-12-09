@@ -25,10 +25,10 @@ const Dashboard: React.FC = () => {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; projectId: number | null }>({ open: false, projectId: null });
-
   const createForm = useForm<ProjectFormValues>({
     defaultValues: { name: "", description: "" },
   });
+
 
   const editForm = useForm<ProjectFormValues>({
     defaultValues: { name: "", description: "" },
