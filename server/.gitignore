@@ -1,0 +1,18 @@
+# Τυπική λίστα για Spring Boot / Maven Projects
+
+### Build Artifacts ###
+/target/
+
+### IDE files ###
+.idea/
+.vscode/
+
+### Environment and Credentials ###
+.env
+.env.example
+
+# Log files
+*.log
+
+# Backup files
+*~
