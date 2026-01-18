@@ -1,199 +1,190 @@
 📌 Project Manager – Frontend (React + TypeScript)
-🧾 Περιγραφή
+🧾 Description
+The frontend serves as the graphical interface of the Project Manager application, enabling real-time management of projects and students. The application is built with React + TypeScript, featuring a modern architecture, Material-UI design system, custom hooks, and a clean API layer.
 
-Το frontend αποτελεί το γραφικό περιβάλλον της εφαρμογής Project Manager, η οποία επιτρέπει τη διαχείριση έργων και φοιτητών σε πραγματικό χρόνο.
-Η εφαρμογή βασίζεται σε React + TypeScript με σύγχρονη αρχιτεκτονική, Material-UI design system, custom hooks και καθαρό API layer.
+Core Features:
+🔐 JWT Authentication.
 
-Υποστηρίζει:
+📁 Full CRUD Management for projects.
 
-🔐 Αυθεντικοποίηση με JWT
+👥 Full CRUD Management for students.
 
-📁 Πλήρη CRUD διαχείριση projects
+🔍 Search functionality.
 
-👥 Πλήρη CRUD διαχείριση φοιτητών
+📝 Form Validation across all inputs.
 
-🔍 Αναζήτηση
+🎨 Responsive Dark Theme.
 
-📝 Validation σε όλες τις φόρμες
+🚀 Roadmap (Planned Features):
+Pagination and Sorting.
 
-🎨 Responsive dark theme
+Role-Based Access Control (RBAC).
 
+Multi-language Support (i18n).
 
+Dark/Light mode toggle.
 
+🛠️ Tech Stack
+React 18
 
+TypeScript
 
-  + από αυτά που θα ήθελα να εφαρμόσω εΙναι σίγουρα το pagination και το role-based access control, sorting, Multi-language Support (i18n) και dark-light mode.
+Vite
 
-🛠️ Τεχνολογίες
+Material-UI (MUI)
 
-• React 18
-• TypeScript
-• Vite
-• Material-UI (MUI)
-• React Router
-• Axios
-• React Hook Form
-• Custom Hooks Architecture
+React Router
 
-🚀 Εγκατάσταση & Εκκίνηση
+Axios
 
-2️⃣ Εγκατάσταση εξαρτήσεων
+React Hook Form
 
-• npm install
+Custom Hooks Architecture
 
-3️⃣ Εκκίνηση development server
+🚀 Installation & Setup
+Install dependencies:
 
-• npm run dev
-• Η εφαρμογή τρέχει στο: http://localhost:5176/
+Bash
+
+npm install
+Start development server:
+
+Bash
+
+npm run dev
+The application runs at: http://localhost:5176/
 
 🔐 Authentication (JWT & Protected Routes)
+The system utilizes JWT for user identification:
 
-Το σύστημα χρησιμοποιεί JWT για την ταυτοποίηση χρηστών.
+Tokens are stored in localStorage.
 
-• Το token αποθηκεύεται στο localStorage
-• Ο Axios interceptor το εισάγει αυτόματα σε όλα τα requests
-• Οι protected routes επιτρέπουν πρόσβαση μόνο σε logged-in χρήστες
-• Σε 401 γίνεται αυτόματο logout & redirect στο login
+An Axios interceptor automatically injects the token into all requests.
+
+Protected Routes restrict access to logged-in users only.
+
+Automatic logout and redirect to login occur on 401 Unauthorized errors.
 
 🌐 Axios API Layer
+A centralized Axios instance handles:
 
-Υπάρχει κεντρικό axios instance που χειρίζεται:
+JWT token injection.
 
-• εισαγωγή JWT token
-• unified error messages
-• αυτόματο logout σε 401
-• network error detection
+Unified error messages.
 
-Έτσι αποφεύγεται ο επαναλαμβανόμενος κώδικας στα components.
+Automatic logout on 401.
+
+Network error detection.
+
+Benefit: Eliminates repetitive code across components.
 
 📁 Projects Module
+Provides full management of projects:
 
-Το module διαχειρίζεται πλήρως τα projects:
+Create, Edit, and Delete projects.
 
-• δημιουργία
-• επεξεργασία
-• διαγραφή
-• εμφάνιση όλων των projects
-• empty state όταν δεν υπάρχουν δεδομένα
+Display all projects.
+
+Empty state handling when no data is available.
 
 Components:
 
-• ProjectCard – παρουσίαση project
-• ProjectForm – φόρμες δημιουργίας/επεξεργασίας
-• ConfirmDialog – επιβεβαίωση διαγραφής
+ProjectCard – Project presentation.
+
+ProjectForm – Creation/Editing forms.
+
+ConfirmDialog – Deletion confirmation.
 
 👥 Students Module
+Management of students per project:
 
-Διαχείριση φοιτητών ανά project:
+Add new students.
 
-• προσθήκη νέου φοιτητή
-• επεξεργασία
-• διαγραφή με επιβεβαίωση
-• αναζήτηση με όνομα ή ID
-• empty state σε άδειες λίστες
+Edit and Delete with confirmation.
+
+Search by name or Student ID.
+
+Empty state for empty lists.
 
 Components:
 
-• StudentForm – validation & form logic
-• StudentListItem
-• StudentSearchBar
+StudentForm – Validation & form logic.
+
+StudentListItem – List entry display.
+
+StudentSearchBar – Search functionality.
 
 🧠 State Management – Custom Hooks
+useProjects: Fetching, creating, editing, and deleting projects with auto-refresh.
 
-• useProjects
-– fetch projects
-– δημιουργία / επεξεργασία / διαγραφή
-– auto-refresh μετά από κάθε ενέργεια
+useStudents: Student CRUD, search functionality, and server-side error handling.
 
-• useStudents
-– CRUD φοιτητών
-– αναζήτηση
-– server-side error handling
+useSnackbar: Centralized notification system.
 
-• useSnackbar
-– κεντρικό σύστημα ειδοποιήσεων
+useCrudOperator: A unified hook for safe and consistent CRUD operations.
 
-• useCrudOperator
-– Ενιαίο hook για ασφαλείς και σταθερές CRUD ενέργειες
-
-Πλεονεκτήματα:
-
-καθαρή αρχιτεκτονική
-
-επαναχρησιμοποίηση λογικής
-
-components χωρίς περιττό κώδικα
+Advantages: Clean architecture, logic reuse, and lean components.
 
 📝 React Hook Form & Validation
+The app integrates a robust validation layer providing:
 
-Η εφαρμογή ενσωματώνει ισχυρό validation layer:
+Required fields and pattern rules.
 
-• required fields
-• pattern rules
-• real-time error feedback
-• άμεση απόρριψη λανθασμένων δεδομένων
-• μηνύματα λάθους κάτω από κάθε input
+Real-time error feedback.
 
-Εντοπίζει:
+Immediate rejection of invalid data.
 
-κενά πεδία
+Error messages displayed under each input.
 
-μη έγκυρο student ID
-
-μη έγκυρους χαρακτήρες
-
-μελλοντικές ημερομηνίες
+Detects: Empty fields, invalid Student IDs, illegal characters, and future dates.
 
 🔔 Snackbar Notifications
+A global notification mechanism that:
 
-Κεντρικός μηχανισμός ειδοποιήσεων:
+Displays success and error messages.
 
-• εμφανίζει επιτυχίες & σφάλματα
-• auto-dismiss
-• consistent UI
-• non-blocking
+Features auto-dismiss and a consistent UI.
 
-Χρησιμοποιείται σε όλες τις CRUD λειτουργίες.
+Is non-blocking and used across all CRUD operations.
 
 ⚠️ Error Handling System
+The application manages:
 
-Η εφαρμογή διαχειρίζεται:
+Backend errors (400, 401, 404, 409, 500).
 
-• backend errors (400, 401, 404, 409, 500)
-• validation errors
-• network errors
-• constraint violations (duplicate project name, unique student ID)
-• fallback UI μέσω ErrorBoundary
+Validation and Network errors.
 
-Όλα εμφανίζονται με καθαρά και κατανοητά μηνύματα.
+Constraint violations (e.g., duplicate project name or unique student ID).
+
+Fallback UI via ErrorBoundary.
 
 🔀 Routing Structure
+React Router handles:
 
-Το React Router διαχειρίζεται:
+Login page.
 
-• Login page
-• Dashboard (projects)
-• Students page ανά project
-• Protected routes για authenticated users
+Dashboard (Projects).
 
-Η πλοήγηση γίνεται με useNavigate.
+Students page (per project).
+
+Protected routes for authenticated users via useNavigate.
 
 🎨 Material-UI & Theme
+Features a Custom Dark Theme:
 
-Χρησιμοποιείται custom dark theme:
+Consistent color palette and readable typography.
 
-• consistent χρώματα
-• ευανάγνωστη typography
-• responsive layout
-• σύγχρονο design και hover states
-• Skeleton Screens: Φιλική εμφάνιση πριν φορτωθεί το περιεχόμενο.
+Responsive layout with modern hover states.
+
+Skeleton Screens: User-friendly UI during data fetching.
 
 ✨ Accessibility
+The application follows core accessibility principles:
 
-Η εφαρμογή ακολουθεί βασικές αρχές προσβασιμότητας:
+ARIA labels and semantic HTML.
 
-• ARIA labels
-• semantic HTML
-• keyboard navigation
-• screen reader-friendly components
-• σωστό focus management στα dialogs
+Keyboard navigation support.
+
+Screen reader-friendly components.
+
+Proper focus management in dialogs.
