@@ -1,74 +1,57 @@
-🚀 Project Manager Full-Stack System
-A robust Project & Student Management system built with a focus on modern architecture, containerization, and secure data handling.
+# 🚀 Project Manager Full-Stack System
 
-🛠️ Tech Stack & Tools
-Backend (The Core)
-Java 22 & Spring Boot 3: High-performance backend logic.
+A professional Project & Student Management system built with a focus on modern architecture, containerization, and secure data handling.
 
-Spring Data JPA & Hibernate: Advanced ORM for PostgreSQL database management.
+## 🛠️ Tech Stack & Tools
 
-Lombok: Used for boilerplate reduction (annotations like @Data, @Builder).
+### **Backend (The Core)**
+* **Java 22 & Spring Boot 3**: High-performance backend logic.
+* **Spring Data JPA & Hibernate**: Advanced ORM for PostgreSQL database management.
+* **Lombok**: Boilerplate reduction (Annotations: `@Data`, `@Builder`, `@AllArgsConstructor`).
+* **Spring Security & JWT**: Secure, stateless authentication and authorization.
+* **Maven**: Dependency management and build lifecycle (via `pom.xml`).
+* **Database Scripts**: Includes `schema.sql` and `data.sql` for automated schema creation and data seeding.
 
-Spring Security & JWT: Secure, stateless authentication and authorization.
+### **Frontend (The Interface)**
+* **React 18 & TypeScript**: Strongly-typed UI for scalable and error-free development.
+* **Vite**: Next-generation frontend tooling for ultra-fast development builds.
+* **Material-UI (MUI)**: Professional design system with custom Dark Theme.
+* **Axios & Interceptors**: Centralized API handling with automatic JWT token injection.
+* **React Hook Form**: Optimized form state and real-time validation logic.
 
-Maven: Dependency management and build lifecycle (via pom.xml).
+---
 
-Database Initializers: schema.sql and data.sql for automatic table creation and data seeding.
+## 📁 Project Structure
 
-Frontend (The Interface)
-React 18 & TypeScript: Strongly-typed UI development for error-free scaling.
+The repository is organized into two main services:
 
-Vite: Next-generation frontend tooling for ultra-fast development.
+* **`/server` (Backend)**: Spring Boot API, Maven wrapper, and SQL initialization scripts.
+* **`/client` (Frontend)**: React SPA, TypeScript configurations, and MUI components.
+* **Docker Support**: Root-level `docker-compose.yml` and service-specific `Dockerfiles`.
 
-Material-UI (MUI): Comprehensive design system for a professional Dark Theme UI.
+---
 
-Axios & Interceptors: Centralized API handling with automatic JWT injection.
+## 🐳 Docker & Deployment
 
-React Hook Form: Optimized form state and validation logic.
+The application is fully containerized for seamless deployment.
 
-📁 Project Structure (Workspace)
-Based on the project's layout, it is organized into two main micro-services:
+* **Containerization**: Optimized Dockerfiles for both Java (JDK 22) and Node.js environments.
+* **Orchestration**: `docker-compose.yml` manages the Spring Boot API, React Frontend, and PostgreSQL database simultaneously.
 
-Backend-project/: Contains the Spring Boot API, Maven wrapper (mvnw), and database initialization scripts.
+---
 
-Frontend-project/: Contains the React SPA, TypeScript configurations, and UI components.
+## 🔐 Key Features
 
-Docker Support: Root-level and service-level Dockerfiles for full-stack orchestration.
+* **Secure Authentication**: JWT-based login with SHA-256 password hashing.
+* **Persistence**: PostgreSQL integration with Hibernate relationship mapping (One-to-Many).
+* **Smart Search**: Optimized search functionality for students by ID or Name.
+* **Professional UI**: Responsive Dark Mode with Skeleton loaders for a smooth UX.
+* **Full Validation**: Strict validation on both Client (React Hook Form) and Server (JSR-303).
 
-🐳 Docker & Deployment
-The application is fully containerized, ensuring it runs the same way on every machine.
+---
 
-Dockerfile: Custom build instructions for both the Java environment and the Node.js environment.
+## 🚀 How to Run
 
-docker-compose.yml: Orchestrates three services:
-
-PostgreSQL: The persistent data store.
-
-Spring Boot API: The backend service.
-
-React Frontend: The client-side application.
-
-🔐 Key Features
-Secure Auth: JWT-based login with hashed passwords (SHA-256).
-
-Persistence: PostgreSQL database with Hibernate relationship mapping (One-to-Many).
-
-Smart Search: Real-time student search by ID or Name.
-
-Clean UI: Responsive Dark Theme with MUI Skeleton loaders for better UX.
-
-Validation: Strict input validation on both Frontend (React Hook Form) and Backend (JSR-303).
-
-🚀 Quick Start
-Using Docker (Recommended)
-Bash
-
+### **Option A: Using Docker (Recommended)**
+```bash
 docker-compose up --build
-Frontend: http://localhost:5176
-
-Backend API: http://localhost:8080
-
-Manual Setup
-Backend: Ensure PostgreSQL is running, then run ./mvnw spring-boot:run.
-
-Frontend: Run npm install and npm run dev.
