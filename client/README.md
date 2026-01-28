@@ -1,45 +1,78 @@
 📌 Project Manager – Frontend (React + TypeScript)
 🧾 Description
-The frontend serves as the graphical interface of the Project Manager application, enabling real-time management of projects and students. The application is built with React + TypeScript, featuring a modern architecture, Material-UI design system, custom hooks, and a clean API layer.
+The frontend serves as the interactive graphical interface of the Project Manager application, enabling real-time management of projects and students. Built with React 18 and TypeScript, it features a modern architecture, a centralized API layer, and a sleek design based on Material-UI.
 
 Core Features:
-🔐 JWT Authentication.
+🔐 Secure Auth: JWT-based authentication with protected routes.
 
-📁 Full CRUD Management for projects.
+📁 Project Management: Full CRUD operations for project lifecycles.
 
-👥 Full CRUD Management for students.
+👥 Student Management: Per-project CRUD for students with unique ID handling.
 
-🔍 Search functionality.
+🔍 Smart Search: Real-time search by name or Student ID.
 
-📝 Form Validation across all inputs.
+📝 Robust Forms: Advanced validation using React Hook Form.
 
-🎨 Responsive Dark Theme.
-
-🚀 Roadmap (Planned Features):
-Pagination and Sorting.
-
-Role-Based Access Control (RBAC).
-
-Multi-language Support (i18n).
-
-Dark/Light mode toggle.
+🎨 Modern UI: Responsive Dark Theme with Skeleton screens for loading states.
 
 🛠️ Tech Stack
-React 18
+Framework: React 18 (Vite)
 
-TypeScript
+Language: TypeScript
 
-Vite
+UI Library: Material-UI (MUI)
 
-Material-UI (MUI)
+Routing: React Router 6
 
-React Router
+State & Logic: Custom Hooks Architecture
 
-Axios
+API Client: Axios (with Interceptors)
 
-React Hook Form
+Forms: React Hook Form
 
-Custom Hooks Architecture
+🧪 Testing Strategy
+To ensure UI stability and prevent regressions, the frontend includes a comprehensive testing suite:
+
+Unit Testing (Vitest & React Testing Library):
+
+Testing individual components (e.g., ProjectCard, StudentSearchBar) for correct rendering.
+
+Validating Custom Hooks (e.g., useCrudOperator) in isolation.
+
+Integration Testing:
+
+Testing form submissions and validation logic in ProjectForm and StudentForm.
+
+Mocking API calls using MSW (Mock Service Worker) to test frontend behavior without a live backend.
+
+End-to-End (E2E) Testing (Optional/Planned):
+
+Simulating user flows like Login -> Create Project -> Add Student using Cypress or Playwright.
+
+🧠 State Management – Custom Hooks
+The application follows a "Logic-less Components" philosophy by offloading complexity to custom hooks:
+
+useProjects: Manages fetching, caching, and state updates for projects.
+
+useStudents: Handles student CRUD, search filtering, and server-side error mapping.
+
+useCrudOperator: A higher-order hook for safe, consistent, and reusable CRUD operations across the app.
+
+🔐 Authentication & API Layer
+JWT Persistence: Tokens are securely stored and managed via localStorage.
+
+Axios Interceptors: * Request: Automatically injects the Authorization header.
+
+Response: Detects 401 Unauthorized errors to trigger automatic logout and clean up.
+
+Protected Routes: Prevents unauthenticated access to the dashboard and management pages.
+
+📝 Form Validation & Error Handling
+Real-time Feedback: Powered by React Hook Form for high performance (no unnecessary re-renders).
+
+Validation Rules: Checks for required fields, Student ID patterns, and unique constraints.
+
+Global Notifications: A centralized useSnackbar hook provides non-blocking success/error feedback for every user action.
 
 🚀 Installation & Setup
 Install dependencies:
@@ -52,139 +85,8 @@ Start development server:
 Bash
 
 npm run dev
-The application runs at: http://localhost:5176/
+Run Tests:
 
-🔐 Authentication (JWT & Protected Routes)
-The system utilizes JWT for user identification:
+Bash
 
-Tokens are stored in localStorage.
-
-An Axios interceptor automatically injects the token into all requests.
-
-Protected Routes restrict access to logged-in users only.
-
-Automatic logout and redirect to login occur on 401 Unauthorized errors.
-
-🌐 Axios API Layer
-A centralized Axios instance handles:
-
-JWT token injection.
-
-Unified error messages.
-
-Automatic logout on 401.
-
-Network error detection.
-
-Benefit: Eliminates repetitive code across components.
-
-📁 Projects Module
-Provides full management of projects:
-
-Create, Edit, and Delete projects.
-
-Display all projects.
-
-Empty state handling when no data is available.
-
-Components:
-
-ProjectCard – Project presentation.
-
-ProjectForm – Creation/Editing forms.
-
-ConfirmDialog – Deletion confirmation.
-
-👥 Students Module
-Management of students per project:
-
-Add new students.
-
-Edit and Delete with confirmation.
-
-Search by name or Student ID.
-
-Empty state for empty lists.
-
-Components:
-
-StudentForm – Validation & form logic.
-
-StudentListItem – List entry display.
-
-StudentSearchBar – Search functionality.
-
-🧠 State Management – Custom Hooks
-useProjects: Fetching, creating, editing, and deleting projects with auto-refresh.
-
-useStudents: Student CRUD, search functionality, and server-side error handling.
-
-useSnackbar: Centralized notification system.
-
-useCrudOperator: A unified hook for safe and consistent CRUD operations.
-
-Advantages: Clean architecture, logic reuse, and lean components.
-
-📝 React Hook Form & Validation
-The app integrates a robust validation layer providing:
-
-Required fields and pattern rules.
-
-Real-time error feedback.
-
-Immediate rejection of invalid data.
-
-Error messages displayed under each input.
-
-Detects: Empty fields, invalid Student IDs, illegal characters, and future dates.
-
-🔔 Snackbar Notifications
-A global notification mechanism that:
-
-Displays success and error messages.
-
-Features auto-dismiss and a consistent UI.
-
-Is non-blocking and used across all CRUD operations.
-
-⚠️ Error Handling System
-The application manages:
-
-Backend errors (400, 401, 404, 409, 500).
-
-Validation and Network errors.
-
-Constraint violations (e.g., duplicate project name or unique student ID).
-
-Fallback UI via ErrorBoundary.
-
-🔀 Routing Structure
-React Router handles:
-
-Login page.
-
-Dashboard (Projects).
-
-Students page (per project).
-
-Protected routes for authenticated users via useNavigate.
-
-🎨 Material-UI & Theme
-Features a Custom Dark Theme:
-
-Consistent color palette and readable typography.
-
-Responsive layout with modern hover states.
-
-Skeleton Screens: User-friendly UI during data fetching.
-
-✨ Accessibility
-The application follows core accessibility principles:
-
-ARIA labels and semantic HTML.
-
-Keyboard navigation support.
-
-Screen reader-friendly components.
-
-Proper focus management in dialogs.
+npm test

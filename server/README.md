@@ -1,242 +1,97 @@
 📌 Project Manager – Backend (Spring Boot)
-🧾 Περιγραφή
+🧾 Description
+The backend serves as the core of the Project Manager application, providing a robust REST API for user authentication and comprehensive management of projects and students. It is built using Spring Boot 3 following a clean, layered architecture, modular design, and secure communication via JWT.
 
-Το backend αποτελεί τη βάση της εφαρμογής Project Manager, παρέχοντας REST API για την αυθεντικοποίηση χρηστών και την πλήρη διαχείριση έργων και φοιτητών.
-Υλοποιείται σε Spring Boot με καθαρή αρχιτεκτονική, modular σχεδιασμό και ασφαλή επικοινωνία μέσω JWT.
+Core Features:
+🔐 Secure Authentication: State-of-the-art JWT implementation.
 
-Υποστηρίζει:
+📁 Project Management: Full CRUD operations for projects.
 
-🔐 Ασφαλή αυθεντικοποίηση με JWT
+👥 Student Management: Full CRUD operations for students linked to specific projects.
 
-📁 CRUD λειτουργίες για Projects
+🔍 Advanced Search: Search students by ID or Name using optimized JPA queries.
 
-👥 CRUD λειτουργίες για Students ανά project
+🎯 Robust Validation: Strict input validation and structured global error handling.
 
-🔍 Αναζήτηση φοιτητών βάσει ID ή ονόματος
+🗄️ Relational Database: Fully mapped PostgreSQL schema with Hibernate.
 
-🎯 Σαφή validation & structured error handling
+🛠️ Tech Stack
+Language: Java 22
 
-🗄️ Πλήρη αντιστοίχιση με PostgreSQL schema
+Framework: Spring Boot 3.x
 
-🛠️ Τεχνολογίες
+Security: Spring Security & JWT
 
-• Java 22
-• Spring Boot 3
-• Spring Security (JWT)
-• Spring Data JPA / Hibernate
-• PostgreSQL
-• Maven
-• Lombok
+Persistence: Spring Data JPA / Hibernate
 
-🔧 CRUD Λειτουργίες
-🟩 Projects – Create / Read / Update / Delete
+Database: PostgreSQL
 
-To σύστημα υποστηρίζει:
+Build Tool: Maven
 
-• Δημιουργία project
-• Προβολή όλων των projects
-• Ενημέρωση στοιχείων
-• Διαγραφή project με cascade delete στους φοιτητές
-• Πεδία: όνομα, περιγραφή, ημερομηνία έναρξης, timestamps
+Boilerplate: Lombok
 
-🟩 Students – Create / Read / Update / Delete
+🧱 Architecture – Layered Structure
+The project follows a Domain-Driven Design (DDD) approach:
 
-Οι φοιτητές συνδέονται με projects μέσω σχέσης One-to-Many.
+Controllers: REST endpoints with input validation using ApiResponse wrappers.
 
-Υποστηρίζονται:
+Services: Business logic, entity existence checks, and custom exceptions.
 
-• Προσθήκη φοιτητή σε συγκεκριμένο project
-• Ενημέρωση στοιχείων
-• Διαγραφή φοιτητή
-• Αναζήτηση βάσει student ID ή ονόματος
-• Χειρισμός uniqueness στο student ID
-• Πεδία: ονοματεπώνυμο, code number, birth, role, project.
+Repositories: Spring Data JPA interfaces for automated query generation.
 
-🟩 Users
+Entities: PostgreSQL table mappings (Project, Student, User) with One-to-Many relationships and Cascade Deletes.
 
-• Οι χρήστες ορίζονται χειροκίνητα
-  στη βάση δεδομένων
-• Hashing κωδικών με SHA-256
-• Authentication-only flows για την εφαρμογή
+DTOs (Data Transfer Objects): Used for request/response mapping to prevent internal entity leakage.
 
-🔐 Ασφάλεια & Authentication
-🟩 JWT Authentication
+🔐 Security & Authentication
+JWT Flow: Stateless authentication where tokens are signed with a secret key and expire in 24 hours.
 
-Το API προστατεύει τα endpoints μέσω JWT tokens:
+Hashing: Passwords are never stored in plain text; they are hashed using SHA-256.
 
-• Απαιτείται token για κάθε προστατευμένο endpoint
-• Token διάρκειας 24 ωρών
-• Token δημιουργείται στο login μέσω Spring Security
-• Tokens υπογράφονται με μυστικό κλειδί στο backend
+Security Components:
 
-🟩 Password Security
+JwtAuthenticationFilter: Intercepts and validates tokens per request.
 
-• Όλοι οι κωδικοί αποθηκεύονται hashed (SHA-256)
-• Δεν αποθηκεύονται ποτέ plain text
-• Το hashing γίνεται στο authentication flow
+JwtTokenProvider: Handles token generation and validation logic.
 
-🟩 Security Layer Components
+🧪 Testing Strategy
+To ensure reliability and code quality, the backend includes:
 
-• JwtAuthenticationFilter – αναλύει και επαληθεύει JWT tokens
-• JwtTokenProvider – δημιουργία & επικύρωση tokens
-• Spring Security Config – καθορίζει ποια endpoints απαιτούν authentication
+Unit Testing (JUnit 5 & Mockito):
 
-🧱 Αρχιτεκτονική – Layered Structure
+Testing Services in isolation by mocking Repositories.
 
-Το backend ακολουθεί καθαρό και οργανωμένο domain-driven design:
+Validating business logic and exception throwing.
 
-🟩 Controllers
+Integration Testing:
 
-Υλοποιούν τα REST endpoints και δέχονται validated requests.
+Testing REST endpoints using MockMvc.
 
-• AuthController
-• ProjectController
-• StudentController
+Verifying JWT authentication filters and security constraints.
 
-Κάθε controller:
+Repository Testing:
 
-• εκτελεί input validation
-• καλεί το αντίστοιχο service
-• επιστρέφει τυποποιημένο ApiResponse
+Using @DataJpaTest to verify custom query methods and database constraints.
 
-🟩 Services
+⚠️ Global Exception Handling
+A @ControllerAdvice mechanism ensures that all errors return a consistent JSON structure:
 
-Εδώ βρίσκεται η επιχειρησιακή λογική:
+JSON
 
-• δημιουργία / ενημέρωση / διαγραφή resources
-• έλεγχος ύπαρξης εγγραφών
-• business validation
-• χειρισμός φοιτητών μέσα σε projects
-• αναζήτηση φοιτητών
-• ρίψη exceptions όπου χρειάζεται
-
-Περιλαμβάνεται και custom service για login:
-
-• CustomUserDetailsService για Spring Security authentication
-
-🟩 Repositories
-
-Αξιοποιούν Spring Data JPA για πρόσβαση στη βάση:
-
-• ProjectRepository
-• StudentRepository
-• UserRepository
-
-Πλεονεκτήματα:
-
-αυτόματη δημιουργία queries
-
-pagination & sorting (αν χρειαστεί μελλοντικά)
-
-διαχείριση relationships
-
-🟩 Entities
-
-Αντιστοιχούν σε PostgreSQL πίνακες:
-
-• Project
-• Student
-• User
-
-Σχέσεις:
-
-One-to-Many → Project → Students
-
-@ManyToOne annotation στους φοιτητές
-
-🟩 DTOs (Data Transfer Objects)
-
-Χρησιμοποιούνται για:
-
-• είσοδο δεδομένων (requests)
-• έξοδο δεδομένων (responses)
-• αποφυγή leakage εσωτερικών entity objects
-
-Περιλαμβάνουν:
-
-ProjectRequest
-
-StudentRequest
-
-LoginRequest
-
-ApiResponse wrapper
-
-⚠️ Exception Handling – Global Strategy
-
-Υπάρχει παγκόσμιος Exception Handler που επιστρέφει καθαρά, δομημένα errors:
-
-Υποστηρίζονται:
-
-• Validation errors
-• Entity not found
-• Unauthorized
-• Conflict (π.χ. duplicate student ID)
-• Expired JWT
-• Generic server errors
-
-Όλα τα σφάλματα επιστρέφουν JSON:
 {
   "data": null,
-  "message": "Detailed error",
-  "validationErrors": {}
+  "message": "Detailed error message",
+  "validationErrors": { "field": "error reason" }
 }
+Supported cases: Validation Errors, Entity Not Found, Unauthorized Access, Conflict (Duplicate IDs), and Expired JWT.
 
-🔍 Αναζήτηση Φοιτητών
+🌐 API & Database
+CORS: Configured to allow secure communication with the Frontend.
 
-Το backend υποστηρίζει exact match search για:
+Database Schema:
 
-• Student code number (ID)
-• Όνομα (first/last name)
+Projects: ID, Unique Name, Description, Start Date, Timestamps.
 
-Ο μηχανισμός αναζήτησης είναι optimized μέσω custom JPA queries.
+Students: ID, First/Last Name, Unique Code Number, FK to Projects.
 
-🌐 CORS
-
-Το backend έχει ρυθμιστεί για ομαλή επικοινωνία με το frontend:
-
-• επιτρεπόμενα origins
-• επιτρεπόμενα HTTP methods
-• exposure headers εάν χρειάζεται
-• ασφαλής επικοινωνία JWT
-
-🗄️ Database (PostgreSQL)
-
-Η βάση δεδομένων αποτελείται από τρεις βασικούς πίνακες με σαφείς σχέσεις και constraints.
-
-🟩 Projects
-
-• id (PK)
-• name (unique)
-• description
-• start_date
-• created_at / updated_at
-
-Constraints:
-• Unique όνομα project
-• Σχέση 1 project → πολλοί φοιτητές (One-to-Many)
-
-🟩 Students
-
-• id (PK)
-• first_name
-• last_name
-• code_number (unique student ID)
-• grade, status, role
-• project_id (FK → projects.id)
-
-Constraints:
-• Unique code_number
-• ON DELETE CASCADE όταν διαγράφεται project
-• Κάθε student πρέπει να ανήκει σε project (foreign key)
-
-🟩 Users (Authentication Only)
-
-• id (PK)
-• username (unique)
-• password (SHA-256 hashed)
-• role
-
-Σημείωση:
-• Δεν υπάρχουν CRUD endpoints για users
-• Οι χρήστες εισάγονται χειροκίνητα και χρησιμοποιούνται μόνο για login / JWT authentication
+Users: Username, Hashed Password (Auth-only table).

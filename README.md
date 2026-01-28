@@ -1,57 +1,54 @@
-# 🚀 Project Manager Full-Stack System
+🚀 Project Manager Full-Stack System
+A professional-grade Project & Student Management ecosystem designed with a focus on clean architecture, containerization, and secure data handling. This system demonstrates a modern approach to full-stack development using a decoupled micro-service structure.
 
-A professional Project & Student Management system built with a focus on modern architecture, containerization, and secure data handling.
+🏗️ System Architecture
+The repository is organized into two primary independent services, managed by a centralized orchestration layer:
 
-## 🛠️ Tech Stack & Tools
+/server (Backend): A high-performance RESTful API built with Spring Boot 3 and Java 22.
 
-### **Backend (The Core)**
-* **Java 22 & Spring Boot 3**: High-performance backend logic.
-* **Spring Data JPA & Hibernate**: Advanced ORM for PostgreSQL database management.
-* **Lombok**: Boilerplate reduction (Annotations: `@Data`, `@Builder`, `@AllArgsConstructor`).
-* **Spring Security & JWT**: Secure, stateless authentication and authorization.
-* **Maven**: Dependency management and build lifecycle (via `pom.xml`).
-* **Database Scripts**: Includes `schema.sql` and `data.sql` for automated schema creation and data seeding.
+/client (Frontend): A responsive, type-safe Single Page Application (SPA) built with React 18, TypeScript, and Vite.
 
-### **Frontend (The Interface)**
-* **React 18 & TypeScript**: Strongly-typed UI for scalable and error-free development.
-* **Vite**: Next-generation frontend tooling for ultra-fast development builds.
-* **Material-UI (MUI)**: Professional design system with custom Dark Theme.
-* **Axios & Interceptors**: Centralized API handling with automatic JWT token injection.
-* **React Hook Form**: Optimized form state and real-time validation logic.
+Infrastructure: Fully containerized environment using Docker and Docker Compose for consistent deployment across environments.
 
----
+🛠️ Tech Stack & Tooling
+Backend Core
+Spring Boot 3 & Java 22: Utilizing the latest features for robust backend logic.
 
-## 📁 Project Structure
+Spring Security & JWT: Implementation of stateless authentication and secure authorization flows.
 
-The repository is organized into two main services:
+Data Persistence: PostgreSQL integration via Spring Data JPA & Hibernate for complex relational mapping (One-to-Many).
 
-* **`/server` (Backend)**: Spring Boot API, Maven wrapper, and SQL initialization scripts.
-* **`/client` (Frontend)**: React SPA, TypeScript configurations, and MUI components.
-* **Docker Support**: Root-level `docker-compose.yml` and service-specific `Dockerfiles`.
+Quality & Maintenance: Automated schema initialization via schema.sql and data.sql.
 
----
+Frontend Experience
+React 18 & TypeScript: Scalable UI components with strict type-safety to eliminate runtime errors.
 
-## 🐳 Docker & Deployment
+Material-UI (MUI): A professional design system featuring a custom Responsive Dark Theme.
 
-The application is fully containerized for seamless deployment.
+State & API: Optimized form handling with React Hook Form and centralized API logic via Axios Interceptors.
 
-* **Containerization**: Optimized Dockerfiles for both Java (JDK 22) and Node.js environments.
-* **Orchestration**: `docker-compose.yml` manages the Spring Boot API, React Frontend, and PostgreSQL database simultaneously.
+🔐 Key Enterprise Features
+Identity Management: Secure JWT-based authentication with automated token injection in the frontend.
 
----
+Data Integrity: Strict validation layers on both the Client (React Hook Form) and Server (JSR-303 / Bean Validation).
 
-## 🔐 Key Features
+Performance UX: Integrated Skeleton Loaders and optimized search functionality for a seamless user experience.
 
-* **Secure Authentication**: JWT-based login with SHA-256 password hashing.
-* **Persistence**: PostgreSQL integration with Hibernate relationship mapping (One-to-Many).
-* **Smart Search**: Optimized search functionality for students by ID or Name.
-* **Professional UI**: Responsive Dark Mode with Skeleton loaders for a smooth UX.
-* **Full Validation**: Strict validation on both Client (React Hook Form) and Server (JSR-303).
+Database Reliability: Cascading deletes and unique constraints managed through PostgreSQL.
 
----
+🐳 Deployment & Orchestration (Docker)
+This project is "production-ready" through full containerization. You can spin up the entire stack (Database, API, and UI) with a single command:
 
-## 🚀 How to Run
+Bash
 
-### **Option A: Using Docker (Recommended)**
-```bash
+# Clone the repository
+git clone <your-repo-link>
+
+# Launch the full environment
 docker-compose up --build
+The system will automatically initialize the PostgreSQL database, run the Spring Boot migrations, and serve the React application.
+
+🧪 Testing & Quality
+Backend: Unit and Integration tests using JUnit 5 and Mockito.
+
+Frontend: Component and hook testing via Vitest and React Testing Library.

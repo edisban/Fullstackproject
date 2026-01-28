@@ -1,0 +1,31 @@
+# =================================================================
+# 1. SHARED & IDEs
+# =================================================================
+.idea/
+.vscode/
+*.iml
+*.log
+.DS_Store
+
+# =================================================================
+# 2. BACKEND (Spring Boot) - Target from Root
+# =================================================================
+server/target/
+server/*.class
+server/.settings/
+server/data.sql
+server/src/main/resources/application-local.properties
+
+# =================================================================
+# 3. FRONTEND (React / Vite) - Paths from Root
+# =================================================================
+client/node_modules/
+client/dist/
+client/build/
+client/coverage/
+
+# Environment Variables (CRITICAL)
+client/.env
+client/.env.*
+.env
+.env.*
