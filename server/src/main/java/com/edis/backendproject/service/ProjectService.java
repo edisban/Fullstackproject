@@ -5,10 +5,12 @@ import com.edis.backendproject.model.Project;
 import com.edis.backendproject.repository.ProjectRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -27,7 +29,7 @@ public class ProjectService implements IProjectService {
         return projectRepository.findAll();
     }
 
-    public Project getProjectById(Long id) {
+    public Project getProjectById(@NonNull Long id) {
         return projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
     }
@@ -46,8 +48,8 @@ public class ProjectService implements IProjectService {
     }
 
     @Transactional
-    public Project updateProject(Long id, ProjectRequest request) {
-        Project project = projectRepository.findById(id)
+    public Project updateProject(@NonNull Long id, ProjectRequest request) {
+        final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
         // Check if the new name conflicts with another project
@@ -64,9 +66,9 @@ public class ProjectService implements IProjectService {
     }
 
     @Transactional
-    public void deleteProject(Long id) {
-        Project project = projectRepository.findById(id)
+    public void deleteProject(@NonNull Long id) {
+        final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-        projectRepository.delete(project);
+        projectRepository.delete(Objects.requireNonNull(project));
     }
 }

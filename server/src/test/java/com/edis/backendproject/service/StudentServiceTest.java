@@ -26,6 +26,7 @@ import com.edis.backendproject.repository.StudentRepository;
 import jakarta.persistence.EntityNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class StudentServiceTest {
 
     @Mock

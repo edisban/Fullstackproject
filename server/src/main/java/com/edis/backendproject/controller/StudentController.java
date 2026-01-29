@@ -6,12 +6,12 @@ import com.edis.backendproject.model.Student;
 import com.edis.backendproject.service.IStudentService;
 
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -32,7 +32,7 @@ public class StudentController {
             @RequestParam(name = "projectId", required = false) Long projectId) {
         List<Student> students;
         if (projectId != null) {
-            students = studentService.getStudentsByProject(projectId); 
+            students = studentService.getStudentsByProject(Objects.requireNonNull(projectId)); 
         } else {
             students = studentService.getAllStudents();
         }
@@ -46,7 +46,7 @@ public class StudentController {
             @RequestParam(name = "projectId", required = false) Long projectId) {
         List<Student> students;
         if (projectId != null) {
-            students = studentService.searchByNameAndProject(query, projectId);
+            students = studentService.searchByNameAndProject(query, Objects.requireNonNull(projectId));
         } else {
             students = studentService.searchByName(query);
         }
@@ -62,14 +62,14 @@ public class StudentController {
 
     
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<ApiResponse<List<Student>>> getStudentsByProject(@PathVariable Long projectId) {
+    public ResponseEntity<ApiResponse<List<Student>>> getStudentsByProject(@PathVariable @NonNull Long projectId) {
         List<Student> students = studentService.getStudentsByProject(projectId);
         return ResponseEntity.ok(ApiResponse.success(students));
     }
 
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable @NonNull Long id) {
         Student student = studentService.getStudentById(id);
         return ResponseEntity.ok(ApiResponse.success(student));
     }

@@ -1,11 +1,13 @@
 package com.edis.backendproject.security;
 
 import java.util.Arrays;
+import java.util.List;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,6 +24,15 @@ import com.edis.backendproject.service.CustomUserDetailsService;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    private final List<String> allowedOrigins;
+
+    public SecurityConfig(@Value("${app.cors.allowed-origins}") String allowedOriginsProperty) {
+        this.allowedOrigins = Arrays.stream(allowedOriginsProperty.split(","))
+                .map(String::trim)
+                .filter(origin -> !origin.isEmpty())
+                .toList();
+    }
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
@@ -53,12 +64,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-            "http://localhost:5176",
-            "http://127.0.0.1:5176",
-            "http://localhost:8080",
-            "http://127.0.0.1:8080"
-        ));
+        List<String> origins = allowedOrigins.isEmpty()
+            ? Arrays.asList(
+                "http://localhost:5176",
+                "http://127.0.0.1:5176",
+                "http://localhost",
+                "http://127.0.0.1"
+            )
+            : allowedOrigins;
+        configuration.setAllowedOrigins(origins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
@@ -69,8 +83,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
-        return authConfig.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(
+            HttpSecurity http,
+            CustomUserDetailsService customUserDetailsService,
+            PasswordEncoder passwordEncoder) throws Exception {
+
+        AuthenticationManagerBuilder authBuilder =
+                http.getSharedObject(AuthenticationManagerBuilder.class);
+        authBuilder
+                .userDetailsService(customUserDetailsService)
+                .passwordEncoder(passwordEncoder);
+        return authBuilder.build();
     }
 
     @Bean

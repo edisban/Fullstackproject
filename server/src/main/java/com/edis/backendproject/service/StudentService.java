@@ -7,10 +7,12 @@ import com.edis.backendproject.repository.ProjectRepository;
 import com.edis.backendproject.repository.StudentRepository;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 
@@ -30,12 +32,12 @@ public class StudentService implements IStudentService {
         return studentRepository.findAll();
     }
 
-    public Student getStudentById(Long id) {
+    public Student getStudentById(@NonNull Long id) {
         return studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
     }
 
-    public List<Student> getStudentsByProject(Long projectId) {
+    public List<Student> getStudentsByProject(@NonNull Long projectId) {
         return studentRepository.findByProject_Id(projectId);
     }
 
@@ -51,7 +53,7 @@ public class StudentService implements IStudentService {
         return studentRepository.searchByName(name);
     }
 
-    public List<Student> searchByNameAndProject(String name, Long projectId) {
+    public List<Student> searchByNameAndProject(String name, @NonNull Long projectId) {
         List<Student> allResults = studentRepository.searchByName(name);
         return allResults.stream()
                 .filter(student -> student.getProject() != null && student.getProject().getId().equals(projectId))
@@ -60,7 +62,8 @@ public class StudentService implements IStudentService {
 
     @Transactional
     public Student createStudent(StudentRequest request) {
-        Project project = projectRepository.findById(request.getProjectId())
+        final Long projectId = Objects.requireNonNull(request.getProjectId(), "Project ID is required");
+        final Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
         Student student = new Student();
@@ -76,8 +79,8 @@ public class StudentService implements IStudentService {
     }
 
     @Transactional
-    public Student updateStudent(Long id, StudentRequest request) {
-        Student student = studentRepository.findById(id)
+    public Student updateStudent(@NonNull Long id, StudentRequest request) {
+        final Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
         student.setCodeNumber(request.getCodeNumber());
@@ -87,13 +90,13 @@ public class StudentService implements IStudentService {
         student.setTitle(request.getTitle());
         student.setDescription(request.getDescription());
 
-        return studentRepository.save(student);
+        return studentRepository.save(Objects.requireNonNull(student));
     }
 
     @Transactional
-    public void deleteStudent(Long id) {
-        Student student = studentRepository.findById(id)
+    public void deleteStudent(@NonNull Long id) {
+        final Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-        studentRepository.delete(student);
+        studentRepository.delete(Objects.requireNonNull(student));
     }
 }

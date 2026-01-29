@@ -6,7 +6,6 @@ import com.edis.backendproject.model.Project;
 import com.edis.backendproject.service.IProjectService;
 
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,7 @@ public class ProjectController {
 
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable @NonNull Long id) {
         Project project = projectService.getProjectById(id);
         return ResponseEntity.ok(ApiResponse.success(project));
     }

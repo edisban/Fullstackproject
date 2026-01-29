@@ -16,12 +16,9 @@ import lombok.Setter;
 /**
  * Student entity with many-to-one relationship to project.
  * CodeNumber must be unique. Includes custom JSON property for projectId.
- * Composite unique constraint on firstName and lastName combination.
  */
 @Entity
-@Table(name = "students", uniqueConstraints = {
-    @UniqueConstraint(name = "uk_student_name", columnNames = {"first_name", "last_name"})
-})
+@Table(name = "students")
 @Getter
 @Setter
 @NoArgsConstructor

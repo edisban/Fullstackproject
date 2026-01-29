@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import com.edis.backendproject.model.Student;
@@ -20,11 +21,13 @@ public interface StudentRepository extends JpaRepository<Student, Long> {
 
     @Override
     @EntityGraph(attributePaths = "project")
+    @NonNull
     List<Student> findAll();
 
     @Override
     @EntityGraph(attributePaths = "project")
-    Optional<Student> findById(Long id);
+    @NonNull
+    Optional<Student> findById(@NonNull Long id);
 
     // Spring Data JPA derives this query automatically from method name
     @EntityGraph(attributePaths = "project")

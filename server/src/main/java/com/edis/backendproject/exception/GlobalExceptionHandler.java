@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,16 +28,16 @@ import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+	private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
 	private static final String VALIDATION_FAILED = "Validation failed";
 	private static final String CONSTRAINT_VIOLATION = "Constraint violation";
 	private static final String CODE_NUMBER_TAKEN = "This student ID is already taken";
-	private static final String NAME_COMBINATION_TAKEN = "This full name is already taken";
 	private static final String PROJECT_NAME_TAKEN = "This project name is already taken";
 	private static final String DATA_INTEGRITY_ERROR = "Data integrity constraint violation";
 	private static final String INVALID_CREDENTIALS = "Invalid username or password";
 	private static final String UNEXPECTED_ERROR = "Unexpected error occurred";
 	private static final String STUDENTS_CODE_KEY = "students_code_number_key";
-	private static final String UK_STUDENT_NAME = "uk_student_name";
 	private static final String PROJECTS_NAME_KEY = "projects_name_key";
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
@@ -100,10 +102,6 @@ public class GlobalExceptionHandler {
 				return ResponseEntity.status(HttpStatus.CONFLICT)
 						.body(ApiResponse.error(CODE_NUMBER_TAKEN));
 			}
-			if (message.contains(UK_STUDENT_NAME)) {
-				return ResponseEntity.status(HttpStatus.CONFLICT)
-						.body(ApiResponse.error(NAME_COMBINATION_TAKEN));
-			}
 			if (message.contains(PROJECTS_NAME_KEY)) {
 				return ResponseEntity.status(HttpStatus.CONFLICT)
 						.body(ApiResponse.error(PROJECT_NAME_TAKEN));
@@ -115,6 +113,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ApiResponse<Void>> handleGeneric(Exception ex) {
+		log.error("Unhandled exception", ex);
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
 				.body(ApiResponse.error(UNEXPECTED_ERROR));
 	}
