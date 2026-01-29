@@ -46,7 +46,7 @@ DTOs (Data Transfer Objects): Used for request/response mapping to prevent inter
 🔐 Security & Authentication
 JWT Flow: Stateless authentication where tokens are signed with a secret key and expire in 24 hours.
 
-Hashing: Passwords are never stored in plain text; they are hashed using SHA-256.
+Hashing: Passwords are never stored in plain text; they are hashed using BCrypt with per-password salts.
 
 Security Components:
 

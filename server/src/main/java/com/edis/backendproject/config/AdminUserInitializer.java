@@ -6,6 +6,8 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
+
 import com.edis.backendproject.model.User;
 import com.edis.backendproject.repository.UserRepository;
 
@@ -35,11 +37,12 @@ public class AdminUserInitializer implements ApplicationRunner {
     @Override
     @Transactional
     public void run(ApplicationArguments args) {
-        userRepository.findByUsername(adminUsername)
-                .ifPresentOrElse(
-                        existing -> log.info("Admin user '{}' already exists", adminUsername),
-                        this::createDefaultAdmin
-                );
+        boolean adminExists = userRepository.findByUsername(adminUsername).isPresent();
+        if (adminExists) {
+            log.info("Admin user '{}' already exists", adminUsername);
+            return;
+        }
+        createDefaultAdmin();
     }
 
     private void createDefaultAdmin() {
@@ -48,7 +51,8 @@ public class AdminUserInitializer implements ApplicationRunner {
                 .password(passwordEncoder.encode(adminPassword))
                 .role("ADMIN")
                 .build();
-        userRepository.save(admin);
+        User persistedAdmin = Objects.requireNonNull(admin, "Admin user cannot be null");
+        userRepository.save(persistedAdmin);
         log.info("Default admin user '{}' created", adminUsername);
     }
 }

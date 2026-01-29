@@ -82,7 +82,7 @@ const ProjectCard = memo<ProjectCardProps>(({ project, onEdit, onDelete }) => {
           variant="contained"
           fullWidth
           size="large"
-          onClick={() => navigate(`/students/${project.id}`)}
+          onClick={() => navigate(`/project/${project.id}`)}
           sx={{ textTransform: "none", fontWeight: 600 }}
         >
           📋 View Students

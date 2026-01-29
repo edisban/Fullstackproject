@@ -36,7 +36,7 @@ const router = createBrowserRouter(
         errorElement={<ErrorBoundary />}
       />
       <Route
-        path="students/:projectId"
+        path="project/:projectId"
         element={
           <ProtectedRoute>
             <Suspense fallback={<Skeleton />}>
