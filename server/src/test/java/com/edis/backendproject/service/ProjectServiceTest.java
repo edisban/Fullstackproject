@@ -56,7 +56,7 @@ class ProjectServiceTest {
         Project created = projectService.createProject(request);
 
         assertThat(created.getId()).isEqualTo(10L);
-        assertThat(created.getName()).isEqualTo("bad Project");
+        assertThat(created.getName()).isEqualTo("New Project");
         assertThat(created.getDescription()).isEqualTo("desc");
         verify(projectRepository).save(any(Project.class));
     }
