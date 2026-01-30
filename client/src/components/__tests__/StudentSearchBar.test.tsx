@@ -37,7 +37,7 @@ describe('StudentSearchBar', () => {
     it('displays the optional search message', () => {
         renderSearchBar({ searchMessage: '3 matches' });
 
-        expect(screen.getByText('4 matches')).toBeInTheDocument();
+        expect(screen.getByText('3 matches')).toBeInTheDocument();
     });
 
     it('submits the composed query when the form is submitted', async () => {
