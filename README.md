@@ -2,6 +2,8 @@
 
 A professional-grade Project & Student Management ecosystem built with a focus on **Clean Architecture**, security, and seamless deployment via Docker. This project demonstrates a modern approach to full-stack development using a decoupled micro-service structure.
 
+[![CI](https://github.com/edisban/Fullstackproject/actions/workflows/ci.yml/badge.svg)](https://github.com/edisban/Fullstackproject/actions/workflows/ci.yml)
+
 ## 🏗️ System Architecture
 The platform is organized into three independent services that work in harmony:
 
@@ -16,6 +18,13 @@ The platform is organized into three independent services that work in harmony:
 * **Security:** Spring Security with **BCrypt** password hashing and **JWT** issuance/validation.
 * **Frontend UX:** React 18, TypeScript, and **Material UI (MUI)** with a responsive dark theme.
 * **DevOps:** Docker & Docker Compose for orchestration, with **Nginx** acting as a reverse proxy.
+
+## ⚙️ CI/CD
+* **GitHub Actions:** [.github/workflows/ci.yml](.github/workflows/ci.yml) runs parallel backend (Maven) and frontend (Vite) jobs on every push/PR to `main`.
+* **Automated Deploy:** On successful tests, the workflow builds `server/Dockerfile` and `client/Dockerfile` and publishes images to GitHub Container Registry:
+   * Backend: `ghcr.io/edisban/fullstackproject-backend:latest`
+   * Frontend: `ghcr.io/edisban/fullstackproject-frontend:latest`
+* Consumers can `docker pull` the latest artifacts or reference them directly in deployment manifests.
 
 ## 🔐 Key Enterprise Features
 * **Identity Management:** Secure authentication flow using industry-standard JWT tokens.

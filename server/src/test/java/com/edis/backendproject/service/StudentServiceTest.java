@@ -67,6 +67,56 @@ class StudentServiceTest {
     }
 
     @Test
+    void searchByCodeThrowsWhenMissing() {
+        when(studentRepository.findByCodeNumber("999")).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> studentService.searchByCode("999"))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Student not found");
+    }
+
+    @Test
+    void getStudentByIdReturnsEntity() {
+        Student student = Student.builder().id(8L).firstName("Ray").build();
+        when(studentRepository.findById(8L)).thenReturn(Optional.of(student));
+
+        Student result = studentService.getStudentById(8L);
+
+        assertThat(result).isSameAs(student);
+    }
+
+    @Test
+    void getStudentByIdThrowsWhenMissing() {
+        when(studentRepository.findById(55L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> studentService.getStudentById(55L))
+                .isInstanceOf(EntityNotFoundException.class)
+                .hasMessageContaining("Student not found");
+    }
+
+    @Test
+    void getStudentsByProjectDelegatesToRepository() {
+        List<Student> students = List.of(Student.builder().id(1L).build());
+        when(studentRepository.findByProject_Id(3L)).thenReturn(students);
+
+        List<Student> result = studentService.getStudentsByProject(3L);
+
+        assertThat(result).isEqualTo(students);
+        verify(studentRepository).findByProject_Id(3L);
+    }
+
+    @Test
+    void searchByNameDelegatesToRepository() {
+        List<Student> students = List.of(Student.builder().id(9L).build());
+        when(studentRepository.searchByName("tom")).thenReturn(students);
+
+        List<Student> result = studentService.searchByName("tom");
+
+        assertThat(result).isEqualTo(students);
+        verify(studentRepository).searchByName("tom");
+    }
+
+    @Test
     void createStudentPersistsEntityWithResolvedProject() {
         StudentRequest request = buildRequest();
         Project project = Project.builder().id(20L).name("AI").build();
