@@ -7,7 +7,6 @@ import com.edis.backendproject.service.IStudentService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,25 +29,26 @@ public class StudentController {
     @GetMapping
     public ResponseEntity<ApiResponse<List<Student>>> getAllStudents(
             @RequestParam(name = "projectId", required = false) Long projectId) {
-        List<Student> students;
         if (projectId != null) {
-            students = studentService.getStudentsByProject(Objects.requireNonNull(projectId)); 
-        } else {
-            students = studentService.getAllStudents();
+            List<Student> students = studentService.getStudentsByProject(projectId);
+            return ResponseEntity.ok(ApiResponse.success(students));
         }
+        @SuppressWarnings("unused")
+        List<Student> students = studentService.getAllStudents();
         return ResponseEntity.ok(ApiResponse.success(students));
     }
 
-    
+    @SuppressWarnings({ "unused", "null" })
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<Student>>> searchStudents(
             @RequestParam String query,
             @RequestParam(name = "projectId", required = false) Long projectId) {
+        String safeQuery = Objects.requireNonNull(query, "query parameter is required");
         List<Student> students;
         if (projectId != null) {
-            students = studentService.searchByNameAndProject(query, Objects.requireNonNull(projectId));
+            students = studentService.searchByNameAndProject(safeQuery, projectId);
         } else {
-            students = studentService.searchByName(query);
+            students = studentService.searchByName(safeQuery);
         }
         return ResponseEntity.ok(ApiResponse.success(students));
     }
@@ -62,14 +62,14 @@ public class StudentController {
 
     
     @GetMapping("/project/{projectId}")
-    public ResponseEntity<ApiResponse<List<Student>>> getStudentsByProject(@PathVariable @NonNull Long projectId) {
+    public ResponseEntity<ApiResponse<List<Student>>> getStudentsByProject(@PathVariable Long projectId) {
         List<Student> students = studentService.getStudentsByProject(projectId);
         return ResponseEntity.ok(ApiResponse.success(students));
     }
 
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable @NonNull Long id) {
+    public ResponseEntity<ApiResponse<Student>> getStudentById(@PathVariable Long id) {
         Student student = studentService.getStudentById(id);
         return ResponseEntity.ok(ApiResponse.success(student));
     }
@@ -83,7 +83,7 @@ public class StudentController {
 
     
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Student>> updateStudent(@PathVariable @NonNull Long id,
+    public ResponseEntity<ApiResponse<Student>> updateStudent(@PathVariable Long id,
                                         @Valid @RequestBody StudentRequest request) {
         Student updated = studentService.updateStudent(id, request);
         return ResponseEntity.ok(ApiResponse.success("Student updated successfully", updated));
@@ -91,7 +91,7 @@ public class StudentController {
 
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteStudent(@PathVariable @NonNull Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteStudent(@PathVariable Long id) {
         studentService.deleteStudent(id);
         return ResponseEntity.ok(ApiResponse.success("Student deleted successfully", null));
     }

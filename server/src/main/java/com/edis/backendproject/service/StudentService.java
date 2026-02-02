@@ -1,5 +1,6 @@
 package com.edis.backendproject.service;
 
+import com.edis.backendproject.config.CacheNames;
 import com.edis.backendproject.dto.StudentRequest;
 import com.edis.backendproject.model.Project;
 import com.edis.backendproject.model.Student;
@@ -7,7 +8,8 @@ import com.edis.backendproject.repository.ProjectRepository;
 import com.edis.backendproject.repository.StudentRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.lang.NonNull;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,17 +30,21 @@ public class StudentService implements IStudentService {
     private final StudentRepository studentRepository;
     private final ProjectRepository projectRepository;
 
+    @Override
+    @Cacheable(cacheNames = CacheNames.STUDENTS)
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
 
-    public Student getStudentById(@NonNull Long id) {
-        return studentRepository.findById(id)
+    public Student getStudentById(Long id) {
+        Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        return Objects.requireNonNull(student);
     }
 
-    public List<Student> getStudentsByProject(@NonNull Long projectId) {
-        return studentRepository.findByProject_Id(projectId);
+    public List<Student> getStudentsByProject(Long projectId) {
+        List<Student> students = studentRepository.findByProject_Id(projectId);
+        return Objects.requireNonNull(students);
     }
 
     public Student searchByCode(String code) {
@@ -53,14 +59,16 @@ public class StudentService implements IStudentService {
         return studentRepository.searchByName(name);
     }
 
-    public List<Student> searchByNameAndProject(String name, @NonNull Long projectId) {
+    public List<Student> searchByNameAndProject(String name, Long projectId) {
         List<Student> allResults = studentRepository.searchByName(name);
-        return allResults.stream()
+        List<Student> filtered = allResults.stream()
                 .filter(student -> student.getProject() != null && student.getProject().getId().equals(projectId))
                 .toList();
+        return Objects.requireNonNull(filtered);
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
     public Student createStudent(StudentRequest request) {
         final Long projectId = Objects.requireNonNull(request.getProjectId(), "Project ID is required");
         final Project project = projectRepository.findById(projectId)
@@ -79,7 +87,8 @@ public class StudentService implements IStudentService {
     }
 
     @Transactional
-    public Student updateStudent(@NonNull Long id, StudentRequest request) {
+    @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
+    public Student updateStudent(Long id, StudentRequest request) {
         final Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
 
@@ -94,7 +103,8 @@ public class StudentService implements IStudentService {
     }
 
     @Transactional
-    public void deleteStudent(@NonNull Long id) {
+    @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
+    public void deleteStudent(Long id) {
         final Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
         studentRepository.delete(Objects.requireNonNull(student));

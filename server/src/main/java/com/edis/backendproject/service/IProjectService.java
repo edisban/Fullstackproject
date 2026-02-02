@@ -5,17 +5,15 @@ import com.edis.backendproject.model.Project;
 
 import java.util.List;
 
-import org.springframework.lang.NonNull;
-
 public interface IProjectService {
 
     List<Project> getAllProjects();
 
-    Project getProjectById(@NonNull Long id);
+    Project getProjectById(Long id);
 
     Project createProject(ProjectRequest request);
 
-    Project updateProject(@NonNull Long id, ProjectRequest request);
+    Project updateProject(Long id, ProjectRequest request);
 
-    void deleteProject(@NonNull Long id);
+    void deleteProject(Long id);
 }

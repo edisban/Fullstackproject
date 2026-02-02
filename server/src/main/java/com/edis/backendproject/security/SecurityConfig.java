@@ -2,6 +2,7 @@ package com.edis.backendproject.security;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.edis.backendproject.service.CustomUserDetailsService;
+import com.edis.backendproject.service.TokenBlacklistService;
 
 
 @Configuration
@@ -38,8 +40,9 @@ public class SecurityConfig {
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(
             JwtTokenProvider tokenProvider,
-            CustomUserDetailsService customUserDetailsService) {
-        return new JwtAuthenticationFilter(tokenProvider, customUserDetailsService);
+            CustomUserDetailsService customUserDetailsService,
+            TokenBlacklistService tokenBlacklistService) {
+        return new JwtAuthenticationFilter(tokenProvider, customUserDetailsService, tokenBlacklistService);
     }
 
  
@@ -52,13 +55,14 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
                 .anyRequest().authenticated()
             );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-        return http.build();
+        SecurityFilterChain builtChain = http.build();
+        return Objects.requireNonNull(builtChain);
     }
 
 
@@ -94,7 +98,8 @@ public class SecurityConfig {
         authBuilder
                 .userDetailsService(customUserDetailsService)
                 .passwordEncoder(passwordEncoder);
-        return authBuilder.build();
+        AuthenticationManager manager = authBuilder.build();
+        return Objects.requireNonNull(manager);
     }
 
     @Bean

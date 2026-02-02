@@ -3,7 +3,7 @@
 The frontend serves as the interactive graphical interface of the Project Manager application, enabling real-time management of projects and students. Built with React 18 and TypeScript, it features a modern architecture, a centralized API layer, and a sleek design based on Material-UI.
 
 Core Features:
-🔐 Secure Auth: JWT-based authentication with protected routes.
+🔐 Secure Auth: JWT-based authentication with protected routes and a post-registration flow that keeps the user on the login form until they explicitly sign in.
 
 📁 Project Management: Full CRUD operations for project lifecycles.
 
@@ -13,7 +13,8 @@ Core Features:
 
 📝 Robust Forms: Advanced validation using React Hook Form.
 
-🎨 Modern UI: Responsive Dark Theme with Skeleton screens for loading states.
+🎨 Modern UI: Responsive Dark Theme with Skeleton screens for loading states and a simplified header that only shows navigation/actions when authenticated (no more Login/Create Account duplicates).
+🧹 Account Lifecycle: Built-in "Delete Account" action in the header triggers the backend self-delete endpoint and logs the user out automatically.
 
 🛠️ Tech Stack
 Framework: React 18 (Vite)

@@ -21,6 +21,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import ConfirmDialog from "@/components/ConfirmDialog";
 import { useSnackbarContext } from "@/context/SnackbarContext";
+import { deleteCurrentUser } from "@/api/users";
+import { getErrorMessage, type ApiError } from "@/types/errors";
 
 const Header: React.FC = memo(() => {
   const { token, user, logout } = useContext(AuthContext);
@@ -29,6 +31,8 @@ const Header: React.FC = memo(() => {
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoutConfirm, setLogoutConfirm] = useState(false);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
   const { showSnackbar } = useSnackbarContext();
 
   const handleLogout = useCallback(() => {
@@ -45,6 +49,28 @@ const Header: React.FC = memo(() => {
       navigate("/", { replace: true, state: { fromLogout: true } });
     }, 0);
   }, [navigate, logout, showSnackbar]);
+
+  const handleDeleteAccountRequest = useCallback(() => {
+    setDrawerOpen(false);
+    setDeleteConfirm(true);
+  }, []);
+
+  const confirmDeleteAccount = useCallback(async () => {
+    if (isDeletingAccount) return;
+    setIsDeletingAccount(true);
+    try {
+      await deleteCurrentUser();
+      showSnackbar("Your account was deleted successfully.", "success");
+      logout();
+      navigate("/", { replace: true, state: { fromLogout: true } });
+    } catch (error) {
+      const message = getErrorMessage(error as ApiError, "Could not delete your account. Please try again.");
+      showSnackbar(message, "error");
+    } finally {
+      setIsDeletingAccount(false);
+      setDeleteConfirm(false);
+    }
+  }, [isDeletingAccount, logout, navigate, showSnackbar]);
 
   const handleNavClick = useCallback((path: string) => {
     navigate(path);
@@ -97,36 +123,41 @@ const Header: React.FC = memo(() => {
         </Box>
 
         {isMobile ? (
-          <>
-            {token && (
-              <IconButton
-                color="inherit"
-                edge="end"
-                onClick={handleDrawerOpen}
-                aria-label="menu"
-              >
-                <MenuIcon />
-              </IconButton>
-            )}
-          </>
+          token && (
+            <IconButton
+              color="inherit"
+              edge="end"
+              onClick={handleDrawerOpen}
+              aria-label="menu"
+            >
+              <MenuIcon />
+            </IconButton>
+          )
         ) : (
-          <Box sx={{ display: "flex", gap: 1 }}>
-            {token && (
-              <>
-                <Button color="inherit" component={Link} to="/">
-                  Home
-                </Button>
+          token && (
+            <Box sx={{ display: "flex", gap: 1 }}>
+              <Button color="inherit" component={Link} to="/">
+                Home
+              </Button>
 
-                <Button color="inherit" component={Link} to="/dashboard">
-                  Dashboard
-                </Button>
+              <Button color="inherit" component={Link} to="/dashboard">
+                Dashboard
+              </Button>
 
-                <Button color="inherit" onClick={handleLogout }>
-                  Logout
-                </Button>
-              </>
-            )}
-          </Box>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={handleDeleteAccountRequest}
+                sx={{ borderColor: "rgba(244, 67, 54, 0.5)" }}
+              >
+                Delete Account
+              </Button>
+
+              <Button color="inherit" onClick={handleLogout }>
+                Logout
+              </Button>
+            </Box>
+          )
         )}
       </Toolbar>
 
@@ -148,25 +179,29 @@ const Header: React.FC = memo(() => {
             </IconButton>
           </Box>
 
-          <List>
-            {token && (
-              <>
-                {navItems.map((item) => (
-                  <ListItem key={item.path} disablePadding>
-                    <ListItemButton onClick={() => handleNavClick(item.path)}>
-                      <ListItemText primary={item.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
-
-                <ListItem disablePadding>
-                  <ListItemButton onClick={handleLogout}>
-                    <ListItemText primary="Logout" />
+          {token && (
+            <List>
+              {navItems.map((item) => (
+                <ListItem key={item.path} disablePadding>
+                  <ListItemButton onClick={() => handleNavClick(item.path)}>
+                    <ListItemText primary={item.label} />
                   </ListItemButton>
                 </ListItem>
-              </>
-            )}
-          </List>
+              ))}
+
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleDeleteAccountRequest}>
+                  <ListItemText primary="Delete Account" sx={{ color: "#ff8a80" }} />
+                </ListItemButton>
+              </ListItem>
+
+              <ListItem disablePadding>
+                <ListItemButton onClick={handleLogout}>
+                  <ListItemText primary="Logout" />
+                </ListItemButton>
+              </ListItem>
+            </List>
+          )}
 
           {token && user?.username && (
             <Box
@@ -195,6 +230,17 @@ const Header: React.FC = memo(() => {
         confirmText="Logout"
         cancelText="Cancel"
         confirmColor="primary"
+      />
+
+      <ConfirmDialog
+        open={deleteConfirm}
+        title="Delete Account"
+        message="This will permanently remove your account and sign you out."
+        onConfirm={confirmDeleteAccount}
+        onCancel={() => setDeleteConfirm(false)}
+        confirmText={isDeletingAccount ? "Deleting..." : "Delete"}
+        cancelText="Keep Account"
+        confirmColor="error"
       />
     </AppBar>
   );

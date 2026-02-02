@@ -7,7 +7,6 @@ import com.edis.backendproject.service.IProjectService;
 
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -34,7 +33,7 @@ public class ProjectController {
 
     
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable @NonNull Long id) {
+    public ResponseEntity<ApiResponse<Project>> getProjectById(@PathVariable Long id) {
         Project project = projectService.getProjectById(id);
         return ResponseEntity.ok(ApiResponse.success(project));
     }
@@ -48,7 +47,7 @@ public class ProjectController {
 
     
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Project>> updateProject(@PathVariable @NonNull Long id,
+    public ResponseEntity<ApiResponse<Project>> updateProject(@PathVariable Long id,
                                                                @Valid @RequestBody ProjectRequest request) {
         Project updated = projectService.updateProject(id, request);
         return ResponseEntity.ok(ApiResponse.success("Project updated successfully", updated));
@@ -56,7 +55,7 @@ public class ProjectController {
 
     
     @DeleteMapping("/{id}")
-    public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable @NonNull Long id) {
+    public ResponseEntity<ApiResponse<Void>> deleteProject(@PathVariable Long id) {
         projectService.deleteProject(id);
         return ResponseEntity.ok(ApiResponse.success("Project deleted successfully", null));
     }

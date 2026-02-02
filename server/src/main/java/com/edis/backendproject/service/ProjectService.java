@@ -1,11 +1,13 @@
 package com.edis.backendproject.service;
 
+import com.edis.backendproject.config.CacheNames;
 import com.edis.backendproject.dto.ProjectRequest;
 import com.edis.backendproject.model.Project;
 import com.edis.backendproject.repository.ProjectRepository;
 
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.lang.NonNull;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +27,20 @@ public class ProjectService implements IProjectService {
 
     private final ProjectRepository projectRepository;
 
+    @Override
+    @Cacheable(cacheNames = CacheNames.PROJECTS)
     public List<Project> getAllProjects() {
         return projectRepository.findAll();
     }
 
-    public Project getProjectById(@NonNull Long id) {
-        return projectRepository.findById(id)
+    public Project getProjectById(Long id) {
+        Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        return Objects.requireNonNull(project);
     }
 
     @Transactional
+    @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
     public Project createProject(ProjectRequest request) {
         projectRepository.findByName(request.getName()).ifPresent(p -> {
             throw new IllegalArgumentException("Project with this name already exists");
@@ -48,7 +54,8 @@ public class ProjectService implements IProjectService {
     }
 
     @Transactional
-    public Project updateProject(@NonNull Long id, ProjectRequest request) {
+    @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
+    public Project updateProject(Long id, ProjectRequest request) {
         final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
@@ -66,7 +73,8 @@ public class ProjectService implements IProjectService {
     }
 
     @Transactional
-    public void deleteProject(@NonNull Long id) {
+    @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
+    public void deleteProject(Long id) {
         final Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
         projectRepository.delete(Objects.requireNonNull(project));
