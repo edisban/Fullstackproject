@@ -39,11 +39,7 @@ class UserServiceTest {
         RegisterRequest request = new RegisterRequest("alice", "plaintextPass");
         when(passwordEncoder.encode("plaintextPass")).thenReturn("hashed");
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
-        when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> {
-            User toSave = invocation.getArgument(0, User.class);
-            return Objects.requireNonNull(toSave);
-        });
-        when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> Objects.requireNonNull(invocation.getArgument(0)));
+        when(userRepository.save(userCaptor.capture())).thenAnswer(invocation -> invocation.getArgument(0, User.class));
 
         User created = userService.registerUser(request);
         User safeCreated = Objects.requireNonNull(created);
