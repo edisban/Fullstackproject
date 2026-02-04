@@ -37,9 +37,7 @@ public class StudentService implements IStudentService {
     }
 
     public Student getStudentById(Long id) {
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-        return Objects.requireNonNull(student);
+        return loadStudent(id);
     }
 
     public List<Student> getStudentsByProject(Long projectId) {
@@ -51,62 +49,68 @@ public class StudentService implements IStudentService {
         if (code == null || code.trim().isEmpty()) {
             throw new IllegalArgumentException("Code cannot be empty");
         }
-        return studentRepository.findByCodeNumber(code)
+        Student student = studentRepository.findByCodeNumber(code)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+        return Objects.requireNonNull(student);
     }
 
     public List<Student> searchByName(String name) {
-        return studentRepository.searchByName(name);
+        List<Student> students = studentRepository.searchByName(name);
+        return Objects.requireNonNull(students);
     }
 
     public List<Student> searchByNameAndProject(String name, Long projectId) {
         List<Student> allResults = studentRepository.searchByName(name);
         List<Student> filtered = allResults.stream()
-                .filter(student -> student.getProject() != null && student.getProject().getId().equals(projectId))
-                .toList();
+            .filter(student -> student.getProject() != null && student.getProject().getId().equals(projectId))
+            .toList();
         return Objects.requireNonNull(filtered);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
     public Student createStudent(StudentRequest request) {
-        final Long projectId = Objects.requireNonNull(request.getProjectId(), "Project ID is required");
-        final Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        final Project project = loadProject(Objects.requireNonNull(request.getProjectId(), "Project ID is required"));
 
-        Student student = new Student();
-        student.setCodeNumber(request.getCodeNumber());
-        student.setFirstName(request.getFirstName());
-        student.setLastName(request.getLastName());
-        student.setDateOfBirth(request.getDateOfBirth());
-        student.setTitle(request.getTitle());
-        student.setDescription(request.getDescription());
+        Student student = applyRequest(new Student(), request);
         student.setProject(project);
-
         return studentRepository.save(student);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
     public Student updateStudent(Long id, StudentRequest request) {
-        final Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-
-        student.setCodeNumber(request.getCodeNumber());
-        student.setFirstName(request.getFirstName());
-        student.setLastName(request.getLastName());
-        student.setDateOfBirth(request.getDateOfBirth());
-        student.setTitle(request.getTitle());
-        student.setDescription(request.getDescription());
-
-        return studentRepository.save(Objects.requireNonNull(student));
+        final Student student = loadStudent(id);
+        Student updated = applyRequest(student, request);
+        return studentRepository.save(updated);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.STUDENTS, allEntries = true)
     public void deleteStudent(Long id) {
-        final Student student = studentRepository.findById(id)
+        final Student student = loadStudent(id);
+        studentRepository.delete(student);
+    }
+
+    private Student loadStudent(Long id) {
+        Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Student not found"));
-        studentRepository.delete(Objects.requireNonNull(student));
+        return Objects.requireNonNull(student);
+    }
+
+    private Project loadProject(Long id) {
+        Project project = projectRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        return Objects.requireNonNull(project);
+    }
+
+    private Student applyRequest(Student target, StudentRequest request) {
+        target.setCodeNumber(request.getCodeNumber());
+        target.setFirstName(request.getFirstName());
+        target.setLastName(request.getLastName());
+        target.setDateOfBirth(request.getDateOfBirth());
+        target.setTitle(request.getTitle());
+        target.setDescription(request.getDescription());
+        return target;
     }
 }

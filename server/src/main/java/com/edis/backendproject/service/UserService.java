@@ -33,10 +33,7 @@ public class UserService {
     public User registerUser(RegisterRequest request) {
         Objects.requireNonNull(request, "Register request must not be null");
 
-        String normalizedUsername = Objects.requireNonNull(request.getUsername(), "Username is required").trim();
-        if (normalizedUsername.isEmpty()) {
-            throw new IllegalArgumentException("Username is required");
-        }
+        String normalizedUsername = normalizeUsername(request.getUsername());
         if (userRepository.existsByUsername(normalizedUsername)) {
             throw new IllegalArgumentException("Username is already taken");
         }
@@ -62,13 +59,18 @@ public class UserService {
     @SuppressWarnings("null")
     @Transactional
     public void deleteUserByUsername(String username) {
-        String normalizedUsername = Objects.requireNonNull(username, "Username is required").trim();
-        if (normalizedUsername.isEmpty()) {
-            throw new IllegalArgumentException("Username is required");
-        }
+        String normalizedUsername = normalizeUsername(username);
 
         User existing = userRepository.findByUsername(normalizedUsername)
                 .orElseThrow(() -> new EntityNotFoundException("User not found"));
         userRepository.delete(existing);
+    }
+
+    private String normalizeUsername(String username) {
+        String normalized = Objects.requireNonNull(username, "Username is required").trim();
+        if (normalized.isEmpty()) {
+            throw new IllegalArgumentException("Username is required");
+        }
+        return normalized;
     }
 }

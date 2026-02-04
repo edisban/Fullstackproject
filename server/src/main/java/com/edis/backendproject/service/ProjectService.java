@@ -8,6 +8,7 @@ import com.edis.backendproject.repository.ProjectRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,49 +35,61 @@ public class ProjectService implements IProjectService {
     }
 
     public Project getProjectById(Long id) {
-        Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-        return Objects.requireNonNull(project);
+        return loadProject(id);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
     public Project createProject(ProjectRequest request) {
-        projectRepository.findByName(request.getName()).ifPresent(p -> {
-            throw new IllegalArgumentException("Project with this name already exists");
-        });
+        String name = requireName(request);
+        ensureUniqueName(name, null);
 
-        Project project = new Project();
-        project.setName(request.getName());
-        project.setDescription(request.getDescription());
-
+        Project project = applyRequest(new Project(), request);
         return projectRepository.save(project);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
     public Project updateProject(Long id, ProjectRequest request) {
-        final Project project = projectRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-
-        // Check if the new name conflicts with another project
-        if (!project.getName().equals(request.getName())) {
-            projectRepository.findByName(request.getName()).ifPresent(p -> {
-                throw new IllegalArgumentException("Project with this name already exists");
-            });
+        final Project project = loadProject(id);
+        String name = requireName(request);
+        if (!Objects.equals(project.getName(), name)) {
+            ensureUniqueName(name, id);
         }
 
-        project.setName(request.getName());
-        project.setDescription(request.getDescription());
-
-        return projectRepository.save(project);
+        Project updated = applyRequest(project, request);
+        return projectRepository.save(updated);
     }
 
     @Transactional
     @CacheEvict(cacheNames = CacheNames.PROJECTS, allEntries = true)
     public void deleteProject(Long id) {
-        final Project project = projectRepository.findById(id)
+        final Project project = loadProject(id);
+        projectRepository.delete(project);
+    }
+
+    private Project loadProject(Long id) {
+        Project project = projectRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
-        projectRepository.delete(Objects.requireNonNull(project));
+        return Objects.requireNonNull(project);
+    }
+
+    private void ensureUniqueName(String name, @Nullable Long projectIdToIgnore) {
+        projectRepository.findByName(name).ifPresent(existing -> {
+            boolean isDifferentEntity = projectIdToIgnore == null || !Objects.equals(existing.getId(), projectIdToIgnore);
+            if (isDifferentEntity) {
+                throw new IllegalArgumentException("Project with this name already exists");
+            }
+        });
+    }
+
+    private Project applyRequest(Project project, ProjectRequest request) {
+        project.setName(requireName(request));
+        project.setDescription(request.getDescription());
+        return project;
+    }
+
+    private String requireName(ProjectRequest request) {
+        return Objects.requireNonNull(request.getName(), "Project name must not be null");
     }
 }

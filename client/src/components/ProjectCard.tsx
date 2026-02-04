@@ -101,6 +101,7 @@ const ProjectCard = memo<ProjectCardProps>(({ project, onEdit, onDelete }) => {
             color="error"
             fullWidth
             size="small"
+            aria-label={`Delete project ${project.name}`}
             onClick={() => onDelete(project.id!)}
           >
             🗑️

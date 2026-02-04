@@ -23,7 +23,7 @@ export const useCrudOperation = () => {
       const {
         onSuccess,
         successMessage,
-        errorMessage = "Operation failed",
+        errorMessage,
       } = options;
 
       try {
@@ -36,7 +36,9 @@ export const useCrudOperation = () => {
         }
         return result;
       } catch (error: unknown) {
-        showSnackbar(getErrorMessage(error, errorMessage), "error");
+        const fallback = errorMessage ?? "Operation failed";
+        const message = errorMessage ?? getErrorMessage(error, fallback);
+        showSnackbar(message, "error");
         return undefined;
       }
     },
