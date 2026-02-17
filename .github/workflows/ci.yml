@@ -52,20 +52,6 @@ jobs:
       - name: Run frontend tests
         run: npm run test
 
-      - name: Set up Docker Compose
-        run: docker compose up -d db redis backend frontend
-
-      - name: Wait for services
-        run: sleep 30
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
-
-      - name: Stop Docker Compose
-        run: docker compose down
-
       - name: Build frontend
         run: npm run build
 

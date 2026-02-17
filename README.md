@@ -60,17 +60,20 @@ The project includes end-to-end tests using **Selenium WebDriver** to verify use
 - Login form elements presence
 - Invalid login error handling
 
-### Running E2E Tests
+### Running E2E Tests (Local)
 ```bash
 cd client
 npm install
+# Make sure Docker services are running:
+docker compose up -d
+# Then run tests:
 npm run test:e2e
 ```
 
-### Prerequisites
-- Chrome browser installed
-- ChromeDriver in PATH (or let Selenium manage it automatically)
+### Prerequisites (Local)
 - Docker services running (`docker compose up -d`)
+- Chrome browser installed
+- ChromeDriver in PATH (or let Selenium manage it)
 
 ## 🗄️ Database Migrations (Flyway)
 * Flyway runs automatically on application startup and in CI, ensuring every environment shares the same schema.
