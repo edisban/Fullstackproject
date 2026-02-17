@@ -15,9 +15,7 @@ describe('Sample Selenium E2E Tests', () => {
     chromeOptions.addArguments('--disable-dev-shm-usage');
     chromeOptions.addArguments('--disable-gpu');
 
-    // Build the driver
-    // If ChromeDriver is not in PATH, specify the path:
-    // const service = new chrome.ServiceBuilder('/path/to/chromedriver').build();
+
     driver = await new Builder()
       .forBrowser('chrome')
       .setChromeOptions(chromeOptions)
@@ -82,14 +80,14 @@ describe('Sample Selenium E2E Tests', () => {
     await passwordInput.sendKeys('wrongpassword');
     await loginButton.click();
 
-    // Wait for error notification (adjust selector based on actual UI)
+    
     await driver.sleep(2000); // Wait for API response
 
-    // Get page source to check for error messages
+    
     const pageSource = await driver.getPageSource();
     console.log('Login attempted with invalid credentials');
     
-    // The actual error handling depends on your application's UI
+
     expect(pageSource).toBeTruthy();
   });
 });
