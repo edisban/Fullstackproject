@@ -21,6 +21,4 @@ INSERT INTO students (code_number, first_name, last_name, date_of_birth, title, 
     ('181818', 'John', 'Travolta', '1981-12-22', 'Author', NULL, (SELECT id FROM projects WHERE name = 'project1'), '2025-11-28 17:43:50.469486'),
     ('333333', 'Mel', 'Gibson', NULL, 'Actor', NULL, (SELECT id FROM projects WHERE name = 'project2'), '2025-12-06 10:08:18.645215');
 
-INSERT INTO users (username, password, role) VALUES
-    ('admin', '$2a$10$PI8WHFtAh3zv2BwKp4d0b.ZsYanXDvQMTDKMZrWXWDxwq/8Fu6Hnu', 'ADMIN'),
-    ('user', '$2b$12$8ijy27DHKBOrcVz8nI1p1uLpNWGZfPbfysVnHpAAEHEntlskxR8Dy', 'USER');
+-- Note: Users are created via self-service registration, not seeded
