@@ -5,7 +5,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn -B clean package -DskipTests
 
-FROM eclipse-temurin:17-jre-jammy AS runtime
+FROM eclipse-temurin:17-jre-alpine AS runtime
 WORKDIR /app
 ENV JAVA_OPTS=""
 ENV SPRING_PROFILES_ACTIVE=default

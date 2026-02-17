@@ -149,7 +149,9 @@ export const useStudents = (projectId: number): UseStudentsReturn => {
   );
 
   useEffect(() => {
-    fetchStudents();
+    fetchStudents().catch((error) => {
+      console.error(error);
+    });
   }, [fetchStudents]);
 
   return {

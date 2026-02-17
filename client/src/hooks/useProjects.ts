@@ -59,7 +59,10 @@ export const useProjects = (): UseProjectsReturn => {
   }, [fetchProjects]);
 
   useEffect(() => {
-    fetchProjects();
+    // Avoid unhandled promise rejections when the initial fetch fails
+    fetchProjects().catch((error) => {
+      console.error(error);
+    });
   }, [fetchProjects]);
 
   return {

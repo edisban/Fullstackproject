@@ -52,6 +52,26 @@ To get the entire platform running locally with a single command:
 3. **Access:** Open http://localhost:4173 (frontend) and http://localhost:8080 (backend API).
 4. **Create Your Account:** Use the "Create Account" tab on the landing page to register yourself. You will see a "Your account was created successfully. Please log in." snackbar and remain on the login form until you authenticate manually. No manual SQL inserts are required—the backend now provisions the admin account automatically from `APP_ADMIN_*` variables, and every other user can self-register (and later self-delete) from the UI.
 
+## 🧪 E2E Testing (Selenium)
+The project includes end-to-end tests using **Selenium WebDriver** to verify user flows in a real browser.
+
+### Test Coverage
+- Homepage loading verification
+- Login form elements presence
+- Invalid login error handling
+
+### Running E2E Tests
+```bash
+cd client
+npm install
+npm run test:e2e
+```
+
+### Prerequisites
+- Chrome browser installed
+- ChromeDriver in PATH (or let Selenium manage it automatically)
+- Docker services running (`docker compose up -d`)
+
 ## 🗄️ Database Migrations (Flyway)
 * Flyway runs automatically on application startup and in CI, ensuring every environment shares the same schema.
 * Versioned scripts live in [server/src/main/resources/db/migration](server/src/main/resources/db/migration) (`V1__create_data_tables.sql`, `V2__seed_data.sql`, `V3__remove_seed_users.sql`, `V4__cleanup_seed_users.sql`, etc.).

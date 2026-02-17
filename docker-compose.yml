@@ -47,6 +47,12 @@ services:
       - "${BACKEND_PORT}:8080"
     networks:
       - app-network
+    develop:
+      watch:
+        - action: rebuild
+          path: ./server/pom.xml
+        - action: rebuild
+          path: ./server/src
 
   redis:
     image: redis:7-alpine
@@ -75,6 +81,14 @@ services:
       - "${FRONTEND_PORT}:80"
     networks:
       - app-network
+    develop:
+      watch:
+        - action: rebuild
+          path: ./client/package.json
+        - action: rebuild
+          path: ./client/package-lock.json
+        - action: rebuild
+          path: ./client/src
 
 volumes:
   postgres_data:

@@ -46,9 +46,13 @@ Testing form submissions and validation logic in ProjectForm and StudentForm.
 
 Mocking API calls using MSW (Mock Service Worker) to test frontend behavior without a live backend.
 
-End-to-End (E2E) Testing (Optional/Planned):
+End-to-End (E2E) Testing (Selenium):
 
-Simulating user flows like Login -> Create Project -> Add Student using Cypress or Playwright.
+Simulating user flows like Login -> Create Project -> Add Student using Selenium WebDriver.
+Runs in headless Chrome for CI/CD compatibility.
+Test files located in `src/e2e/`.
+
+Run with: `npm run test:e2e`
 
 🧠 State Management – Custom Hooks
 The application follows a "Logic-less Components" philosophy by offloading complexity to custom hooks:
@@ -91,3 +95,8 @@ Run Tests:
 Bash
 
 npm test
+Run E2E Tests:
+
+Bash
+
+npm run test:e2e
