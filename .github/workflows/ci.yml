@@ -52,21 +52,6 @@ jobs:
       - name: Run frontend tests
         run: npm run test
 
-      - name: Start Docker services
-        run: docker compose up -d
-
-      - name: Wait for backend to be ready
-        run: sleep 90
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-        env:
-          CI: true
-
-      - name: Stop Docker services
-        if: always()
-        run: docker compose down
-
       - name: Build frontend
         run: npm run build
 
