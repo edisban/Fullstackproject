@@ -52,6 +52,105 @@ To get the entire platform running locally with a single command:
 3. **Access:** Open http://localhost:4173 (frontend) and http://localhost:8080 (backend API).
 4. **Create Your Account:** Use the "Create Account" tab on the landing page to register yourself. You will see a "Your account was created successfully. Please log in." snackbar and remain on the login form until you authenticate manually. No manual SQL inserts are required—the backend now provisions the admin account automatically from `APP_ADMIN_*` variables, and every other user can self-register (and later self-delete) from the UI.
 
+## ☁️ Deploy to AWS EC2 (Free Tier)
+Deploy this full-stack application to AWS EC2 using Docker.
+
+### Prerequisites
+- AWS Account
+- EC2 t3.micro (Free Tier eligible)
+- Security group with ports 22 (SSH), 80 (HTTP), 443 (HTTPS) open
+
+### Deployment Steps
+
+#### 1. Launch EC2 Instance
+1. Go to AWS Console → EC2 → Launch Instance
+2. Choose **Amazon Linux 2023** AMI
+3. Select **t3.micro** (Free Tier)
+4. Create or select existing key pair for SSH access
+5. Configure Security Group:
+   - SSH (22) → Your IP
+   - HTTP (80) → Anywhere
+   - HTTPS (443) → Anywhere
+
+#### 2. Connect to EC2 & Install Docker
+```bash
+ssh -i your-key.pem ec2-user@your-ec2-ip
+sudo yum update -y
+sudo yum install -y docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker ec2-user
+# Log out and log back in
+```
+
+#### 3. Clone & Configure
+```bash
+# Clone your repository
+git clone https://github.com/edisban/Fullstackproject.git
+cd Fullstackproject
+
+# Create production .env file
+cat > .env << 'EOF'
+POSTGRES_DB=Project_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=your_secure_password
+DB_PORT=5432
+
+BACKEND_PORT=8080
+DB_URL=jdbc:postgresql://db:5432/Project_db
+DB_USERNAME=postgres
+DB_PASSWORD=your_secure_password
+JWT_SECRET=your_secure_jwt_secret
+JWT_EXPIRATION=86400000
+CORS_ALLOWED_ORIGINS=http://your-ec2-ip.amazonaws.com,http://localhost
+APP_ADMIN_USERNAME=admin
+APP_ADMIN_PASSWORD=admin_password
+
+FRONTEND_PORT=80
+VITE_API_URL=/api
+EOF
+```
+
+**Important:** Set `VITE_API_URL=/api` so the frontend uses nginx reverse proxy.
+
+#### 4. Build & Deploy
+```bash
+# Build and start all services
+docker compose up --build -d
+
+# Verify containers are running
+docker ps
+```
+
+#### 5. Access Your Application
+- Frontend: `http://your-ec2-ip.amazonaws.com`
+- Backend API: `http://your-ec2-ip.amazonaws.com:8080`
+
+### Troubleshooting
+
+**Check container logs:**
+```bash
+docker compose logs -f backend
+docker compose logs -f frontend
+```
+
+**Check if services are running:**
+```bash
+curl http://localhost/api/students
+```
+
+**Restart services:**
+```bash
+docker compose restart
+```
+
+**Update and rebuild:**
+```bash
+git pull origin main
+docker compose down
+docker compose up --build -d
+```
+
 ## 🧪 E2E Testing (Selenium)
 The project includes end-to-end tests using **Selenium WebDriver** to verify user flows in a real browser.
 
