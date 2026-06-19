@@ -1,125 +1,166 @@
-📌 Project Manager – Backend (Spring Boot)
-🧾 Description
-The backend serves as the core of the Project Manager application, providing a robust REST API for user authentication and comprehensive management of projects and students. It is built using Spring Boot 3 following a clean, layered architecture, modular design, and secure communication via JWT.
+# Project Manager – Backend (Spring Boot)
 
-Core Features:
-🔐 Secure Authentication: State-of-the-art JWT implementation, self-service registration that leaves users logged out until they authenticate, and a protected delete-account endpoint.
+## Overview
+This backend provides the REST API for the Project Manager application. It is built with Spring Boot 3 and targets Java 17. The service handles authentication (JWT), project and student CRUD, search, caching, and database migrations via Flyway.
 
-📁 Project Management: Full CRUD operations for projects.
+## Tech Stack
+- Java 17
+- Spring Boot 3
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- Flyway (database migrations)
+- Redis (Lettuce) for caching and token blacklisting
+- Maven for build and dependency management
 
-👥 Student Management: Full CRUD operations for students linked to specific projects.
+## Architecture — Clean / Layered
+The codebase follows a layered architecture to keep concerns separated:
 
-🔍 Advanced Search: Search students by ID or Name using optimized JPA queries.
+- Controllers: HTTP endpoints that validate input and translate to service calls.
+- Services: Business logic, transactions, and orchestration between repositories and other services.
+- Repositories: Spring Data JPA interfaces handling persistence operations.
+- DTOs: Data Transfer Objects used to isolate internal Entities from API contracts.
+- Entities: JPA-mapped domain objects representing tables (Project, Student, User).
 
-🎯 Robust Validation: Strict input validation and structured global error handling.
+This separation makes the code easier to test and evolve.
 
-⚡ Selective Caching: Targeted Spring Cache annotations back high-traffic reads (projects/students/metadata) with Redis TTLs (10m/5m/1h) and automatic eviction on writes.
+## Caching & Redis
+- Selective caching is applied using Spring Cache annotations. Caches have per-cache TTLs configured by a custom `RedisCacheManager`:
+  - `projects` cache: 10 minutes
+  - `students` cache: 5 minutes
+  - `metadata` cache: 1 hour
+- Write operations evict relevant caches to keep PostgreSQL authoritative.
+- JWT Blacklisting: On logout, JWTs are written to Redis with TTL equal to the token remaining lifetime. A `TokenBlacklistService` checks Redis to reject blacklisted tokens.
 
-🗄️ Relational Database: Fully mapped PostgreSQL schema with Hibernate.
+## Database Migrations (Flyway)
+- Flyway SQL scripts are placed in `src/main/resources/db/migration` and are applied automatically on application startup.
+- Seed data scripts (e.g., `V2__seed_data.sql`) exist for local/dev convenience; CI also runs migrations during builds.
 
-🛠️ Tech Stack
-Language: Java 22
+## Project Structure
 
-Framework: Spring Boot 3.x
+```
+server/
+├── src/
+│   ├── main/
+│   │   ├── java/com/edis/backendproject/
+│   │   │   ├── BackendProjectApplication.java    # Spring Boot entry point
+│   │   │   ├── controller/
+│   │   │   │   ├── AuthController.java           # Login, register, logout
+│   │   │   │   ├── ProjectController.java        # Project CRUD
+│   │   │   │   └── StudentController.java        # Student CRUD & search
+│   │   │   ├── service/
+│   │   │   │   ├── UserService.java              # User registration & management
+│   │   │   │   ├── ProjectService.java           # Project business logic
+│   │   │   │   ├── StudentService.java           # Student business logic
+│   │   │   │   └── TokenBlacklistService.java    # JWT blacklist on logout
+│   │   │   ├── repository/
+│   │   │   │   ├── UserRepository.java           # User persistence
+│   │   │   │   ├── ProjectRepository.java        # Project persistence
+│   │   │   │   └── StudentRepository.java        # Student persistence
+│   │   │   ├── entity/
+│   │   │   │   ├── User.java
+│   │   │   │   ├── Project.java
+│   │   │   │   └── Student.java
+│   │   │   ├── dto/
+│   │   │   │   ├── ProjectRequest.java
+│   │   │   │   ├── ProjectResponse.java
+│   │   │   │   ├── StudentRequest.java
+│   │   │   │   ├── StudentResponse.java
+│   │   │   │   └── RegisterRequest.java
+│   │   │   ├── security/
+│   │   │   │   ├── SecurityConfig.java           # Spring Security configuration
+│   │   │   │   ├── JwtAuthenticationFilter.java  # JWT validation filter
+│   │   │   │   └── JwtTokenProvider.java         # JWT creation/validation
+│   │   │   └── config/
+│   │   │       └── RedisCacheConfig.java         # Redis & cache configuration
+│   │   └── resources/
+│   │       ├── application.properties             # Spring Boot config
+│   │       ├── logback-spring.xml                 # Logging config
+│   │       └── db/migration/
+│   │           ├── V1__init_schema.sql           # Create tables
+│   │           ├── V2__seed_data.sql             # Sample data
+│   │           └── V3__alter_*.sql               # Schema changes
+│   └── test/
+│       └── java/com/edis/backendproject/service/
+│           ├── ProjectServiceTest.java
+│           ├── StudentServiceTest.java
+│           └── UserServiceTest.java
+├── pom.xml                      # Maven dependencies
+├── Dockerfile
+├── mvnw
+├── mvnw.cmd
+└── README.md
+```
 
-Security: Spring Security & JWT
+## API Endpoints
 
-Persistence: Spring Data JPA / Hibernate
+Base URL: `http://localhost:8081/api` (when running locally)
 
-Database: PostgreSQL
-Migrations: Flyway
+### Authentication
 
-Caching: Spring Cache + Redis (Lettuce)
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------| 
+| POST | `/auth/register` | Register new user | ❌ No |
+| POST | `/auth/login` | Login (returns JWT) | ❌ No |
+| POST | `/auth/logout` | Logout & blacklist token | ✅ Yes |
 
-Build Tool: Maven
+### Projects
 
-Boilerplate: Lombok
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------| 
+| GET | `/projects` | List all projects | ✅ Yes |
+| GET | `/projects/{id}` | Get project by ID | ✅ Yes |
+| POST | `/projects` | Create project | ✅ Yes |
+| PUT | `/projects/{id}` | Update project | ✅ Yes |
+| DELETE | `/projects/{id}` | Delete project | ✅ Yes |
 
-🧱 Architecture – Layered Structure
-The project follows a Domain-Driven Design (DDD) approach:
+### Students
 
-Controllers: REST endpoints with input validation using ApiResponse wrappers.
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------| 
+| GET | `/students` | List students (supports pagination & search) | ✅ Yes |
+| GET | `/students/{id}` | Get student by ID | ✅ Yes |
+| POST | `/students` | Create student | ✅ Yes |
+| PUT | `/students/{id}` | Update student | ✅ Yes |
+| DELETE | `/students/{id}` | Delete student | ✅ Yes |
 
-Services: Business logic, entity existence checks, and custom exceptions.
+### User Account
 
-Repositories: Spring Data JPA interfaces for automated query generation.
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------| 
+| DELETE | `/users/me` | Delete current user account | ✅ Yes |
 
-Entities: PostgreSQL table mappings (Project, Student, User) with One-to-Many relationships and Cascade Deletes.
+### Health Check
 
-DTOs (Data Transfer Objects): Used for request/response mapping to prevent internal entity leakage.
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------| 
+| GET | `/actuator/health` | Service health status | ❌ No |
 
-🧊 Caching & Redis
-- Redis 7 runs alongside Postgres (via Docker) and is wired through `RedisConfig`, which configures SSL, timeouts, and serializer defaults for the shared `LettuceConnectionFactory`.
-- A custom `RedisCacheManager` gives every cache name its own TTL (projects 10m, students 5m, metadata 1h) and prefixes keys with `cache::` to keep the namespace tidy.
-- Only read-heavy service methods opt into `@Cacheable`, while create/update/delete operations issue `@CacheEvict(allEntries = true)` so PostgreSQL stays authoritative.
+## Local Development (Without Docker)
+Requirements: Java 17, Maven, a running PostgreSQL instance (or set DB URL to a local instance).
 
-🔐 Security & Authentication
-JWT Flow: Stateless authentication where tokens are signed with a secret key and expire in 24 hours.
+Run the application locally:
 
-Hashing: Passwords are never stored in plain text; they are hashed using BCrypt with per-password salts.
+```bash
+cd server
+mvn spring-boot:run
+```
 
-Public Endpoints:
-- `POST /api/auth/register` – self-service signup that normalizes usernames and stores BCrypt-hashed passwords.
-- `POST /api/auth/login` – exchanges valid credentials for a JWT access token.
-- `POST /api/auth/logout` – stateless logout that blacklists the presented JWT in Redis until it would naturally expire.
-- `DELETE /api/users/me` – authenticated users can remove their own account; the backend revokes their session, deletes associated data, and blacklists the current JWT.
-
-Admin Bootstrap:
-- `AdminUserInitializer` provisions the administrator listed in `APP_ADMIN_USERNAME`/`APP_ADMIN_PASSWORD` on startup (including inside Docker), so no manual SQL insert is required.
-
-Security Components:
-
-JwtAuthenticationFilter: Intercepts and validates tokens per request.
-
-JwtTokenProvider: Handles token generation and validation logic.
-TokenBlacklistService: Persists revoked tokens in Redis so blacklisted JWTs are rejected instantly.
-
-🧪 Testing Strategy
-To ensure reliability and code quality, the backend includes:
-
-Unit Testing (JUnit 5 & Mockito):
-
-Testing Services in isolation by mocking Repositories.
-
-Validating business logic and exception throwing.
-
-Integration Testing:
-
-Testing REST endpoints using MockMvc.
-
-Verifying JWT authentication filters and security constraints.
-
-Repository Testing:
-
-Using @DataJpaTest to verify custom query methods and database constraints.
-
-🗄️ Database Migrations
-
-Flyway manages schema evolution with SQL scripts in [src/main/resources/db/migration](src/main/resources/db/migration). Notable versions include `V1__create_data_tables.sql` (schema), `V2__seed_data.sql` (demo rows), `V3__remove_seed_users.sql`, and `V4__cleanup_seed_users.sql`, which remove the deprecated SQL-based admin/user inserts now that accounts are provisioned dynamically. New schema changes should be captured by adding a higher-numbered file. The backend automatically runs `flyway:migrate` on startup and during CI, while the Postgres Docker container simply starts empty—Flyway takes care of creating tables and seed data. To apply migrations manually, run:
+Apply migrations manually:
 
 ```bash
 mvn -pl server flyway:migrate
 ```
 
-⚠️ Global Exception Handling
-A @ControllerAdvice mechanism ensures that all errors return a consistent JSON structure:
+Run tests:
 
-JSON
+```bash
+mvn -pl server test
+```
 
-{
-  "data": null,
-  "message": "Detailed error message",
-  "validationErrors": { "field": "error reason" }
-}
-Supported cases: Validation Errors, Entity Not Found, Unauthorized Access, Conflict (Duplicate IDs), and Expired JWT.
+## Security
+- JWT based authentication with BCrypt password hashing.
+- Protected endpoints require a valid JWT; expired or blacklisted tokens are rejected.
 
-🌐 API & Database
-CORS: Configured to allow secure communication with the Frontend.
-
-Database Schema:
-
-Projects: ID, Unique Name, Description, Start Date, Timestamps.
-
-Students: ID, First/Last Name, Unique Code Number, FK to Projects.
-
-Users: Username, Hashed Password (Auth-only table).
+## Notes
+- Admin account is provisioned from environment variables `APP_ADMIN_USERNAME` / `APP_ADMIN_PASSWORD` during startup.
+- For local development using Docker, use the `docker compose` commands from the main README.

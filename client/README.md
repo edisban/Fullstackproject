@@ -1,102 +1,106 @@
-📌 Project Manager – Frontend (React + TypeScript)
-🧾 Description
-The frontend serves as the interactive graphical interface of the Project Manager application, enabling real-time management of projects and students. Built with React 18 and TypeScript, it features a modern architecture, a centralized API layer, and a sleek design based on Material-UI.
+# Project Manager – Frontend (React + TypeScript)
 
-Core Features:
-🔐 Secure Auth: JWT-based authentication with protected routes and a post-registration flow that keeps the user on the login form until they explicitly sign in.
+## Overview
+This frontend is a React 18 + TypeScript application built with Vite. It provides the user interface for authentication, project dashboard, student management, and smart search.
 
-📁 Project Management: Full CRUD operations for project lifecycles.
+## Architecture & Philosophy
+- React 18 with Vite for fast development and builds.
+- Logic-less Components: Presentational components focus on rendering; business logic and side effects are implemented in custom hooks (e.g., `useProjects`, `useStudents`, `useCrudOperator`).
+- State & side effects are encapsulated in hooks to make components easier to test and reuse.
 
-👥 Student Management: Per-project CRUD for students with unique ID handling.
+## Tech & Tooling
+- React 18
+- TypeScript
+- Vite (development server and build)
+- Material UI (MUI)
+- Axios for HTTP with interceptors
+- React Router v6
+- React Hook Form for performant form handling
 
-🔍 Smart Search: Real-time search by name or Student ID.
+## Scripts
+- Install: `npm install`
+- Development: `npm run dev`
+- Production build: `npm run build`
+- Unit tests: `npm test`
+- E2E tests: `npm run test:e2e`
 
-📝 Robust Forms: Advanced validation using React Hook Form.
+## Environment
+- Required local environment variable for production build / Nginx proxy:
+	- `VITE_API_URL=/api`
 
-🎨 Modern UI: Responsive Dark Theme with Skeleton screens for loading states and a simplified header that only shows navigation/actions when authenticated (no more Login/Create Account duplicates).
-🧹 Account Lifecycle: Built-in "Delete Account" action in the header triggers the backend self-delete endpoint and logs the user out automatically.
+## State Management – Custom Hooks
+- `useProjects`: fetching, caching, update logic.
+- `useStudents`: CRUD, search filtering, and server error mapping.
+- `useCrudOperator`: shared create/update/delete patterns with optimistic UI behavior.
 
-🛠️ Tech Stack
-Framework: React 18 (Vite)
+## Authentication & API Layer
+- JWT tokens are stored client-side (localStorage) and attached to requests via Axios interceptors.
+- Interceptors also handle 401 responses to trigger logout and token cleanup.
 
-Language: TypeScript
+## Project Structure
 
-UI Library: Material-UI (MUI)
+```
+client/
+├── src/
+│   ├── components/
+│   │   ├── ConfirmDialog.tsx        # Confirmation modal
+│   │   ├── Dashboard.tsx            # Main dashboard page
+│   │   ├── EmptyState.tsx           # Empty state placeholder
+│   │   ├── ErrorBoundary.tsx        # Error boundary wrapper
+│   │   ├── Footer.tsx               # Footer component
+│   │   ├── Header.tsx               # Navigation header
+│   │   ├── Layout.tsx               # Page layout wrapper
+│   │   ├── NotificationSnackbar.tsx # Toast notifications
+│   │   ├── ProjectCard.tsx          # Project display card
+│   │   ├── ProjectForm.tsx          # Create/edit project form
+│   │   ├── StudentForm.tsx          # Create/edit student form
+│   │   ├── StudentListItem.tsx      # Student list item
+│   │   ├── StudentSearchBar.tsx     # Search & filter bar
+│   │   ├── Skeleton.tsx             # Loading skeleton
+│   │   └── __tests__/               # Component unit tests
+│   ├── hooks/
+│   │   ├── useCrudOperation.ts      # Generic CRUD hook
+│   │   ├── useProjects.ts           # Project management hook
+│   │   ├── useStudents.ts           # Student management hook
+│   │   └── __tests__/               # Hook unit tests
+│   ├── pages/
+│   │   ├── Dashboard.tsx            # Dashboard page
+│   │   ├── HomePage.tsx             # Landing page
+│   │   └── StudentsPage.tsx         # Students page
+│   ├── api/
+│   │   ├── axiosInstance.tsx        # Axios config with interceptors
+│   │   ├── projects.ts              # Project API calls
+│   │   ├── students.ts              # Student API calls
+│   │   └── users.ts                 # User API calls
+│   ├── context/
+│   │   ├── AuthContext.tsx          # Auth state & login/logout
+│   │   └── SnackbarContext.tsx      # Toast notifications state
+│   ├── routes/
+│   │   └── ProtectedRoute.tsx       # Route guard for authenticated pages
+│   ├── types/
+│   │   └── errors.ts                # Error type definitions
+│   ├── utils/
+│   │   ├── authToken.ts             # JWT token management
+│   │   └── dateUtils.ts             # Date formatting
+│   ├── e2e/
+│   │   └── sample.test.ts           # Selenium E2E tests
+│   ├── App.tsx                      # Root component with routing
+│   ├── main.tsx                     # React entry point
+│   ├── index.css                    # Global styles
+│   └── theme.ts                     # Material UI theme config
+├── index.html
+├── Dockerfile
+├── nginx.conf                       # Reverse proxy config
+├── package.json
+├── tsconfig.json
+├── tsconfig.e2e.json
+├── vite.config.ts
+├── vitest.e2e.config.ts
+└── README.md
+```
 
-Routing: React Router 6
+## Testing
+- Unit tests: Vitest + React Testing Library
+- Integration and E2E tests: MSW for mocking and Selenium for full browser flows
 
-State & Logic: Custom Hooks Architecture
-
-API Client: Axios (with Interceptors)
-
-Forms: React Hook Form
-
-🧪 Testing Strategy
-To ensure UI stability and prevent regressions, the frontend includes a comprehensive testing suite:
-
-Unit Testing (Vitest & React Testing Library):
-
-Testing individual components (e.g., ProjectCard, StudentSearchBar) for correct rendering.
-
-Validating Custom Hooks (e.g., useCrudOperator) in isolation.
-
-Integration Testing:
-
-Testing form submissions and validation logic in ProjectForm and StudentForm.
-
-Mocking API calls using MSW (Mock Service Worker) to test frontend behavior without a live backend.
-
-End-to-End (E2E) Testing (Selenium):
-
-Simulating user flows like Login -> Create Project -> Add Student using Selenium WebDriver.
-Runs in headless Chrome for CI/CD compatibility.
-Test files located in `src/e2e/`.
-
-Run with: `npm run test:e2e`
-
-🧠 State Management – Custom Hooks
-The application follows a "Logic-less Components" philosophy by offloading complexity to custom hooks:
-
-useProjects: Manages fetching, caching, and state updates for projects.
-
-useStudents: Handles student CRUD, search filtering, and server-side error mapping.
-
-useCrudOperator: A higher-order hook for safe, consistent, and reusable CRUD operations across the app.
-
-🔐 Authentication & API Layer
-JWT Persistence: Tokens are securely stored and managed via localStorage.
-
-Axios Interceptors: * Request: Automatically injects the Authorization header.
-
-Response: Detects 401 Unauthorized errors to trigger automatic logout and clean up.
-
-Protected Routes: Prevents unauthenticated access to the dashboard and management pages.
-
-📝 Form Validation & Error Handling
-Real-time Feedback: Powered by React Hook Form for high performance (no unnecessary re-renders).
-
-Validation Rules: Checks for required fields, Student ID patterns, and unique constraints.
-
-Global Notifications: A centralized useSnackbar hook provides non-blocking success/error feedback for every user action.
-
-🚀 Installation & Setup
-Install dependencies:
-
-Bash
-
-npm install
-Start development server:
-
-Bash
-
-npm run dev
-Run Tests:
-
-Bash
-
-npm test
-Run E2E Tests:
-
-Bash
-
-npm run test:e2e
+---
