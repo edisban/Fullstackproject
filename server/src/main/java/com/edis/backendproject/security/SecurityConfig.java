@@ -3,6 +3,7 @@ package com.edis.backendproject.security;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Collections;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -28,17 +29,19 @@ import com.edis.backendproject.service.TokenBlacklistService;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final List<String> allowedOrigins;
+    private List<String> allowedOrigins = Collections.emptyList();
 
-    public SecurityConfig(@Value("${app.cors.allowed-origins}") String allowedOriginsProperty) {
-        this.allowedOrigins = Arrays.stream(allowedOriginsProperty.split(","))
-                .map(String::trim)
+    public SecurityConfig(@Value("${app.cors.allowed-origins:}") String allowedOriginsProperty) {
+        String prop = allowedOriginsProperty == null ? "" : allowedOriginsProperty;
+        this.allowedOrigins = Objects.requireNonNull(
+            Arrays.stream(prop.split(","))
+                .map(s -> s == null ? "" : s.trim())
                 .filter(origin -> !origin.isEmpty())
-                .toList();
+                .toList());
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(
+        public JwtAuthenticationFilter jwtAuthenticationFilter(
             JwtTokenProvider tokenProvider,
             CustomUserDetailsService customUserDetailsService,
             TokenBlacklistService tokenBlacklistService) {
@@ -70,7 +73,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = allowedOrigins.isEmpty()
+        List<String> origins = Objects.requireNonNull(allowedOrigins).isEmpty()
             ? Arrays.asList(
                 "http://localhost:5176",
                 "http://127.0.0.1:5176",
@@ -89,10 +92,10 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(
-            HttpSecurity http,
-            CustomUserDetailsService customUserDetailsService,
-            PasswordEncoder passwordEncoder) throws Exception {
+            public AuthenticationManager authenticationManager(
+                HttpSecurity http,
+                CustomUserDetailsService customUserDetailsService,
+                PasswordEncoder passwordEncoder) throws Exception {
 
         AuthenticationManagerBuilder authBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);

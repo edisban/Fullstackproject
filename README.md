@@ -20,30 +20,7 @@ Client -> Nginx Proxy -> Backend -> Postgres / Redis
 
 ### Architecture Diagram
 
-```mermaid
-graph TB
-    subgraph Client
-        UI["React UI<br/>(TypeScript + Vite)"]
-    end
-    
-    subgraph Docker
-        Nginx["Nginx<br/>(Reverse Proxy)"]
-        Backend["Spring Boot API<br/>(Java 17)"]
-        Postgres[("PostgreSQL<br/>(Database)")]
-        Redis[("Redis<br/>(Cache & Blacklist)")]
-    end
-    
-    UI -->|HTTP Request| Nginx
-    Nginx -->|/api/*| Backend
-    Backend -->|Query/Persist| Postgres
-    Backend -->|Cache/Tokens| Redis
-    
-    style UI fill:#61dafb
-    style Nginx fill:#009639
-    style Backend fill:#6db33f
-    style Postgres fill:#336791
-    style Redis fill:#dc382d
-```
+Client -> Nginx Proxy -> Backend -> Postgres / Redis
 
 ## Project Structure
 

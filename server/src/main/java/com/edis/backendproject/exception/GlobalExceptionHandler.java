@@ -10,7 +10,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
-import org.springframework.validation.FieldError;
+// FieldError handled via lambdas; explicit import removed to avoid unused import warning
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import com.edis.backendproject.dto.ApiResponse;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.validation.ConstraintViolation;
+import java.util.Objects;
 import jakarta.validation.ConstraintViolationException;
 
 /**
@@ -46,8 +46,8 @@ public class GlobalExceptionHandler {
 				.getFieldErrors()
 				.stream()
 				.collect(Collectors.toMap(
-					FieldError::getField,
-					FieldError::getDefaultMessage,
+					fe -> Objects.toString(fe.getField(), ""),
+					fe -> Objects.toString(fe.getDefaultMessage(), ""),
 					(existing, replacement) -> replacement,
 					LinkedHashMap::new));
 
@@ -67,8 +67,8 @@ public class GlobalExceptionHandler {
 		Map<String, String> violations = ex.getConstraintViolations()
 				.stream()
 				.collect(Collectors.toMap(
-					violation -> violation.getPropertyPath().toString(),
-					ConstraintViolation::getMessage,
+					v -> java.util.Objects.toString(v.getPropertyPath(), ""),
+					v -> Objects.toString(v.getMessage(), ""),
 					(existing, replacement) -> replacement,
 					LinkedHashMap::new));
 
@@ -79,13 +79,13 @@ public class GlobalExceptionHandler {
 	@ExceptionHandler(EntityNotFoundException.class)
 	public ResponseEntity<ApiResponse<Void>> handleEntityNotFound(EntityNotFoundException ex) {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND)
-				.body(ApiResponse.error(ex.getMessage()));
+			.body(ApiResponse.error(Objects.toString(ex.getMessage(), "Not found")));
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)
 	public ResponseEntity<ApiResponse<Void>> handleIllegalArgument(IllegalArgumentException ex) {
 		return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-				.body(ApiResponse.error(ex.getMessage()));
+			.body(ApiResponse.error(Objects.toString(ex.getMessage(), "Invalid argument")));
 	}
 
 	@ExceptionHandler(AuthenticationException.class)

@@ -117,7 +117,7 @@ Base URL: `http://localhost:8081/api` (when running locally)
 
 | Method | Endpoint | Description | Auth Required |
 |--------|----------|-------------|---------------| 
-| GET | `/students` | List students (supports pagination & search) | ✅ Yes |
+| GET | `/students` | List all students (supports search filtering by name or ID) | ✅ Yes |
 | GET | `/students/{id}` | Get student by ID | ✅ Yes |
 | POST | `/students` | Create student | ✅ Yes |
 | PUT | `/students/{id}` | Update student | ✅ Yes |
