@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Navigate, Outlet, useLocation } from "react-router";
 import { FullPageLoader } from "@/components/FullPageLoader";
 import { useAuth } from "./useAuth";
@@ -27,4 +28,11 @@ export const GuestOnly = () => {
     return <Navigate to={from ? `${from.pathname}${from.search ?? ""}` : "/dashboard"} replace />;
   }
   return <Outlet />;
+};
+
+/** The public landing page for guests; signed-in users go straight to their overview. */
+export const HomeRoute = ({ landing }: { landing: ReactNode }) => {
+  const { user, isLoading } = useAuth();
+  if (isLoading) return <FullPageLoader />;
+  return user ? <Navigate to="/dashboard" replace /> : <>{landing}</>;
 };
