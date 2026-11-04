@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -B -q package -DskipTests \
     && cp target/backendproject-*.jar app.jar
 
 # ---- Runtime -----------------------------------------------------------------
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 RUN addgroup -S app && adduser -S app -G app
 WORKDIR /app
 COPY --from=build /workspace/app.jar app.jar
