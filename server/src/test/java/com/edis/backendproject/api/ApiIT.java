@@ -326,6 +326,42 @@ class ApiIT {
         }
     }
 
+    // ---------------------------------------------------------------- dashboard
+
+    @Nested
+    class Dashboard {
+
+        @Test
+        void overviewIsScopedToTheCallerAndCountsTodaysActivity() throws Exception {
+            Cookie user = newUser();
+            long apollo = createProject(user, "Apollo");
+            long gemini = createProject(user, "Gemini");
+            createStudent(user, apollo, "1", "Ada", "Lovelace");
+            createStudent(user, apollo, "2", "Alan", "Turing");
+            createStudent(user, gemini, "3", "Grace", "Hopper");
+            createProject(newUser(), "Someone else's");
+
+            mvc.perform(get("/api/dashboard").cookie(user))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.data.projectCount").value(2))
+                    .andExpect(jsonPath("$.data.studentCount").value(3))
+                    .andExpect(jsonPath("$.data.studentsAddedLast7Days").value(3))
+                    .andExpect(jsonPath("$.data.activity.length()").value(14))
+                    .andExpect(jsonPath("$.data.activity[13].count").value(3))
+                    .andExpect(jsonPath("$.data.topProjects[0].name").value("Apollo"))
+                    .andExpect(jsonPath("$.data.topProjects.length()").value(2))
+                    .andExpect(jsonPath("$.data.recentStudents[0].firstName").value("Grace"));
+        }
+
+        @Test
+        void newUsersGetAnEmptyOverview() throws Exception {
+            mvc.perform(get("/api/dashboard").cookie(newUser()))
+                    .andExpect(jsonPath("$.data.projectCount").value(0))
+                    .andExpect(jsonPath("$.data.activity.length()").value(14))
+                    .andExpect(jsonPath("$.data.recentStudents.length()").value(0));
+        }
+    }
+
     // ---------------------------------------------------------------- helpers
 
     private static String uniqueName() {
