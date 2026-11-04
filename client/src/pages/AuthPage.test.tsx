@@ -72,7 +72,7 @@ describe("Authentication", () => {
     await user.click(screen.getByRole("button", { name: "Create account" }));
 
     expect(
-      await screen.findByRole("heading", { name: "Create your first project" }),
+      await screen.findByRole("heading", { name: "Set up your workspace in three steps" }),
     ).toBeInTheDocument();
     await waitFor(() =>
       expect(screen.getByText("Welcome, newbie! Your account is ready.")).toBeInTheDocument(),
