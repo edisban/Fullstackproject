@@ -1,3 +1,4 @@
+import ExploreOutlined from "@mui/icons-material/ExploreOutlined";
 import LogoutRounded from "@mui/icons-material/LogoutRounded";
 import PersonRemoveOutlined from "@mui/icons-material/PersonRemoveOutlined";
 import Box from "@mui/material/Box";
@@ -16,11 +17,13 @@ import { useAuth } from "@/auth/useAuth";
 import { InitialsAvatar } from "@/components/InitialsAvatar";
 import { useToast } from "@/components/feedback/toast-context";
 import { DeleteAccountDialog } from "@/features/account/DeleteAccountDialog";
+import { useTour } from "@/features/tour/tour-context";
 
 export const UserMenu = () => {
   const { user, isAdmin, signOut } = useAuth();
   const toast = useToast();
   const navigate = useNavigate();
+  const tour = useTour();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -71,6 +74,18 @@ export const UserMenu = () => {
           />
         </Box>
         <Divider sx={{ my: 0.5 }} />
+        <MenuItem
+          onClick={() => {
+            setAnchor(null);
+            navigate("/dashboard");
+            tour.start();
+          }}
+        >
+          <ListItemIcon>
+            <ExploreOutlined fontSize="small" />
+          </ListItemIcon>
+          Take the tour
+        </MenuItem>
         <MenuItem onClick={handleSignOut}>
           <ListItemIcon>
             <LogoutRounded fontSize="small" />

@@ -14,7 +14,7 @@ import Link from "@mui/material/Link";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Link as RouterLink, useNavigate } from "react-router";
 import type { DashboardData } from "@/api/types";
 import { useAuth } from "@/auth/useAuth";
@@ -24,6 +24,7 @@ import { ActivityChart, CHART_FILL } from "@/features/dashboard/ActivityChart";
 import { StatTile } from "@/features/dashboard/StatTile";
 import { useDashboard } from "@/features/dashboard/queries";
 import { ProjectFormDialog } from "@/features/projects/ProjectFormDialog";
+import { isTourCompleted, useTour } from "@/features/tour/tour-context";
 import { formatRelative, pluralize } from "@/utils/format";
 
 const greeting = (now = new Date()) => {
@@ -132,7 +133,7 @@ const RecentStudents = ({ students }: { students: DashboardData["recentStudents"
   </Stack>
 );
 
-const GettingStarted = ({ onCreate }: { onCreate: () => void }) => (
+const GettingStarted = ({ onCreate, onTour }: { onCreate: () => void; onTour: () => void }) => (
   <Card
     sx={(theme) => ({
       p: { xs: 3, sm: 4 },
@@ -171,6 +172,9 @@ const GettingStarted = ({ onCreate }: { onCreate: () => void }) => (
         <Button variant="contained" size="large" startIcon={<AddRounded />} onClick={onCreate}>
           Create a project
         </Button>
+        <Button variant="outlined" size="large" onClick={onTour}>
+          Take the tour
+        </Button>
       </Stack>
     </Stack>
   </Card>
@@ -179,12 +183,22 @@ const GettingStarted = ({ onCreate }: { onCreate: () => void }) => (
 const DashboardPage = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { start } = useTour();
   const { data, isPending, isError, error, refetch } = useDashboard();
   const [createOpen, setCreateOpen] = useState(false);
 
   useEffect(() => {
     document.title = "Overview · Project Manager";
   }, []);
+
+  // First visit: show the welcome tour once the page has content to point at.
+  const autoStarted = useRef(false);
+  useEffect(() => {
+    if (!autoStarted.current && data && user && !isTourCompleted(user.username)) {
+      autoStarted.current = true;
+      start();
+    }
+  }, [data, user, start]);
 
   if (isError) {
     return (
@@ -226,7 +240,7 @@ const DashboardPage = () => {
         </Button>
       </Stack>
 
-      {isEmpty && <GettingStarted onCreate={() => setCreateOpen(true)} />}
+      {isEmpty && <GettingStarted onCreate={() => setCreateOpen(true)} onTour={start} />}
 
       <Grid container spacing={2} sx={{ mb: 2 }} data-tour="stats">
         <Grid size={{ xs: 6, md: 3 }}>
