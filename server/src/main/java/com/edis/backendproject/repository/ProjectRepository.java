@@ -36,6 +36,8 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
     @Query("select p from Project p where p.id = :id")
     Optional<Project> findWithOwnerById(@Param("id") Long id);
 
+    long countByOwnerId(Long ownerId);
+
     boolean existsByOwnerIdAndNameIgnoreCase(Long ownerId, String name);
 
     boolean existsByOwnerIdAndNameIgnoreCaseAndIdNot(Long ownerId, String name, Long id);
