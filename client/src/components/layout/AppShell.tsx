@@ -12,7 +12,10 @@ import { Logo } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { UserMenu } from "./UserMenu";
 
-const NAV_ITEMS = [{ to: "/projects", label: "Projects", tour: "nav-projects" }];
+const NAV_ITEMS = [
+  { to: "/dashboard", label: "Overview", tour: "nav-overview" },
+  { to: "/projects", label: "Projects", tour: "nav-projects" },
+];
 
 export const AppShell = () => (
   <Box
@@ -53,7 +56,7 @@ export const AppShell = () => (
         <Toolbar disableGutters sx={{ gap: 1, minHeight: { xs: 60 } }}>
           <Box
             component={NavLink}
-            to="/projects"
+            to="/dashboard"
             aria-label="Project Manager home"
             sx={{ textDecoration: "none", mr: { xs: 1, sm: 3 } }}
           >

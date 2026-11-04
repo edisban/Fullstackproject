@@ -24,7 +24,7 @@ export const GuestOnly = () => {
   if (isLoading) return <FullPageLoader />;
   if (user) {
     const from = (location.state as FromState | null)?.from;
-    return <Navigate to={from ? `${from.pathname}${from.search ?? ""}` : "/projects"} replace />;
+    return <Navigate to={from ? `${from.pathname}${from.search ?? ""}` : "/dashboard"} replace />;
   }
   return <Outlet />;
 };
